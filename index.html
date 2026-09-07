@@ -435,6 +435,22 @@ async function validasiDanTampilkan(user){
     return;
   }
   try{
+    const email=String(user.email||"").trim().toLowerCase();
+    const isSuperAdminEmail=email==="servicehpmaja@gmail.com";
+
+    // SUPERADMIN ditentukan langsung dari Firebase Authentication.
+    // Tidak membutuhkan dokumen users/{uid}; Firestore boleh masih kosong.
+    if(isSuperAdminEmail){
+      const data={email:user.email||"servicehpmaja@gmail.com",role:"superadmin",status:"aktif",namaPemilik:"Super Admin",namaKonter:"FIXZY"};
+      window.fixzySession={uid:user.uid,role:"superadmin",ownerUid:user.uid,profile:data,permissions:{}};
+      document.getElementById("accountName").textContent="SUPERADMIN";
+      document.getElementById("accountExp").textContent="-";
+      authReady=true;
+      terapkanHakAksesMenu();
+      tampilkanBeranda();
+      return;
+    }
+
     const snap=await getDoc(doc(db,"users",user.uid));
     if(!snap.exists()){
       await signOut(auth);
