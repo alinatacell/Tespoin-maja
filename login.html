@@ -158,17 +158,16 @@ function isValidEmailStrictFixzy(email){
   return true;
 }
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBwHjyapmcsvIff_HrGyHsxGrJTl-7CHTo",
-  authDomain: "teknisi-ponsel-maja.firebaseapp.com",
-  projectId: "teknisi-ponsel-maja",
-  storageBucket: "teknisi-ponsel-maja.firebasestorage.app",
-  messagingSenderId: "835618012205",
-  appId: "1:835618012205:web:95e41095d1a56c761d4ca4"
+const firebaseConfig={
+  apiKey:"AIzaSyBwHjyapmcsvIff_HrGyHsxGrJTl-7CHTo",
+  authDomain:"teknisi-ponsel-maja.firebaseapp.com",
+  projectId:"teknisi-ponsel-maja",
+  storageBucket:"teknisi-ponsel-maja.firebasestorage.app",
+  messagingSenderId:"835618012205",
+  appId:"1:835618012205:web:95e41095d1a56c761d4ca4"
 };
-const firebaseConfig=cfg;
 
-const app=initializeApp(cfg);
+const app=initializeApp(firebaseConfig);
 const auth=getAuth(app);
 const db=getFirestore(app);
 
@@ -206,23 +205,34 @@ form.addEventListener("submit",async(e)=>{
       return;
     }
 
-    const data=snap.data()||{};
-    const role=data.role||"";
-    const status=data.status||"";
+    const data=snap.exists() ? (snap.data()||{}) : {};
+    const role=String(data.role||"").toLowerCase();
+    const status=String(data.status||"");
+    const isSuperAdminEmail =
+      String(cred.user.email||"").toLowerCase()==="servicehpmaja@gmail.com";
 
-    if(!["owner","employee","reseller","superadmin","karyawan","iprem"].includes(role)){
+    // Superadmin sistem dikenali dari email dan tidak wajib memiliki
+    // dokumen users/{uid} atau masa aktif Owner.
+    if(!snap.exists() && !isSuperAdminEmail){
+      await signOut(auth);
+      tampilPopup("Fixzy","Data profil akun tidak ditemukan.");
+      return;
+    }
+
+    if(!["owner","employee","reseller","superadmin","karyawan","iprem","admin"].includes(role)
+       && !isSuperAdminEmail){
       await signOut(auth);
       tampilPopup("Fixzy","Role akun tidak dikenali.");
       return;
     }
 
-    if(status==="blocked" || status==="rejected"){
+    if(!isSuperAdminEmail && (status==="blocked" || status==="rejected")){
       await signOut(auth);
       tampilPopup("Fixzy","Akun diblokir / ditolak.\nHubungi Admin Fixzy.");
       return;
     }
 
-    if(status!=="aktif"){
+    if(!isSuperAdminEmail && status!=="aktif"){
       await signOut(auth);
       tampilPopup("Fixzy","Akun belum aktif.");
       return;
@@ -238,7 +248,7 @@ form.addEventListener("submit",async(e)=>{
       if(!Number.isNaN(d.getTime())) expDate=d;
     }
 
-    if(expDate && new Date()>expDate){
+    if(!isSuperAdminEmail && expDate && new Date()>expDate){
       await signOut(auth);
 
       if(data.perpanjanganStatus==="pending"){
@@ -259,9 +269,11 @@ form.addEventListener("submit",async(e)=>{
     // Tidak memakai localStorage/sessionStorage.
     tampilPopup(
       "Fixzy",
-      `Halo ${data.namaKonter||data.namaPemilik||email}!\nAkun aktif sampai ${
-        expDate ? expDate.toLocaleDateString("id-ID") : "-"
-      }`
+      isSuperAdminEmail
+        ? "Login Superadmin berhasil!\nMembuka FIXZY..."
+        : `Halo ${data.namaKonter||data.namaPemilik||email}!\nAkun aktif sampai ${
+            expDate ? expDate.toLocaleDateString("id-ID") : "-"
+          }`
     );
 
     // Beri waktu popup tampil, lalu kembali ke index.
