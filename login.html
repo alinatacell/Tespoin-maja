@@ -196,7 +196,21 @@ form.addEventListener("submit",async(e)=>{
     const cred=await signInWithEmailAndPassword(auth,email,password);
     const uid=cred.user.uid;
 
-    // Verifikasi profil mengikuti Rules baru.
+    // Superadmin sistem dikenali langsung dari email Firebase Authentication.
+    // Superadmin TIDAK wajib memiliki dokumen users/{uid}.
+    const isSuperAdminEmail =
+      String(cred.user.email||"").trim().toLowerCase()==="servicehpmaja@gmail.com";
+
+    // Superadmin boleh masuk walaupun Firestore masih kosong.
+    if(isSuperAdminEmail){
+      tampilPopup("Fixzy","Login Superadmin berhasil!\nMembuka FIXZY...");
+      setTimeout(()=>{
+        window.location.replace("index.html");
+      },700);
+      return;
+    }
+
+    // Untuk akun selain Superadmin, profil wajib ada di users/{uid}.
     const snap=await getDoc(doc(db,"users",uid));
 
     if(!snap.exists()){
@@ -205,19 +219,9 @@ form.addEventListener("submit",async(e)=>{
       return;
     }
 
-    const data=snap.exists() ? (snap.data()||{}) : {};
+    const data=snap.data()||{};
     const role=String(data.role||"").toLowerCase();
     const status=String(data.status||"");
-    const isSuperAdminEmail =
-      String(cred.user.email||"").toLowerCase()==="servicehpmaja@gmail.com";
-
-    // Superadmin sistem dikenali dari email dan tidak wajib memiliki
-    // dokumen users/{uid} atau masa aktif Owner.
-    if(!snap.exists() && !isSuperAdminEmail){
-      await signOut(auth);
-      tampilPopup("Fixzy","Data profil akun tidak ditemukan.");
-      return;
-    }
 
     if(!["owner","employee","reseller","superadmin","karyawan","iprem","admin"].includes(role)
        && !isSuperAdminEmail){
