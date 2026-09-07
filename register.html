@@ -104,13 +104,13 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/fireba
 import { getAuth, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 import { getFirestore, collection, getDocs, query, where, doc, setDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
-const firebaseConfig={
-  apiKey:"AIzaSyC_PcarMTT5Un7qfSLzf92o5OGn5rginsI",
-  authDomain:"fixzy-update.firebaseapp.com",
-  projectId:"fixzy-update",
-  storageBucket:"fixzy-update.firebasestorage.app",
-  messagingSenderId:"995892519622",
-  appId:"1:995892519622:web:fa41047944d8e5b35d6dc7"
+const firebaseConfig = {
+  apiKey: "AIzaSyBwHjyapmcsvIff_HrGyHsxGrJTl-7CHTo",
+  authDomain: "teknisi-ponsel-maja.firebaseapp.com",
+  projectId: "teknisi-ponsel-maja",
+  storageBucket: "teknisi-ponsel-maja.firebasestorage.app",
+  messagingSenderId: "835618012205",
+  appId: "1:835618012205:web:95e41095d1a56c761d4ca4"
 };
 const app=initializeApp(firebaseConfig);
 const auth=getAuth(app);
@@ -331,7 +331,7 @@ form.addEventListener("submit",async e=>{
     console.error(err);
     let msg=err.message||"Gagal";
     if(err.code==="auth/email-already-in-use") msg="Email sudah digunakan.";
-    if(err.code==="permission-denied") msg="Rules Firestore belum publish. Publish rules di Firebase Console project fixzy-update.\n"+err.message;
+    if(err.code==="permission-denied") msg="Rules Firestore belum publish. Publish rules di Firebase Console project teknisi-ponsel-maja.\n"+err.message;
     popup("Gagal Registrasi",msg);
     btn.disabled=false;
     loading.style.display="none";

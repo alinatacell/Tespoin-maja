@@ -116,7 +116,14 @@ main{max-width:1180px;margin:auto;padding:14px 10px 70px}.card{background:#fff;b
 import{initializeApp,getApps,getApp,deleteApp}from"https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";  
 import{getAuth,onAuthStateChanged,createUserWithEmailAndPassword,updateProfile,sendPasswordResetEmail}from"https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";  
 import{getFirestore,collection,query,where,getDocs,doc,getDoc,setDoc,serverTimestamp}from"https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";  
-const cfg={apiKey:"AIzaSyC_PcarMTT5Un7qfSLzf92o5OGn5rginsI",authDomain:"fixzy-update.firebaseapp.com",projectId:"fixzy-update",storageBucket:"fixzy-update.firebasestorage.app",messagingSenderId:"995892519622",appId:"1:995892519622:web:fa41047944d8e5b35d6dc7"};  
+const firebaseConfig = {
+  apiKey: "AIzaSyBwHjyapmcsvIff_HrGyHsxGrJTl-7CHTo",
+  authDomain: "teknisi-ponsel-maja.firebaseapp.com",
+  projectId: "teknisi-ponsel-maja",
+  storageBucket: "teknisi-ponsel-maja.firebasestorage.app",
+  messagingSenderId: "835618012205",
+  appId: "1:835618012205:web:95e41095d1a56c761d4ca4"
+};  
 const app=getApps().length?getApp():initializeApp(cfg),auth=getAuth(app),db=getFirestore(app),$ = id=>document.getElementById(id);  
 const rupiah=n=>"Rp "+(Number(n)||0).toLocaleString("id-ID"),esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));  
 // PERMS SINKRON 100% DENGAN INDEX-FIXED-CEKKIS  
