@@ -6,9 +6,9 @@
 <title>Technician Repair Assistant</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f3f3f3;color:#222;font-family:Arial,sans-serif}
-header{background:#111;color:#fff;padding:15px 16px;position:sticky;top:0;z-index:5}
+header{background:#111;color:#fff;padding:15px 16px;position:sticky;top:0;z-index:5;pointer-events:auto}
 .brand{font-size:19px;font-weight:700}.sub{font-size:12px;color:#aaa;margin-top:4px}
-main{max-width:720px;margin:auto;padding:16px}.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 3px 14px rgba(0,0,0,.07)}
+main{max-width:720px;margin:auto;padding:16px;position:relative;z-index:1}.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 3px 14px rgba(0,0,0,.07)}
 .welcome{text-align:center;padding:25px 18px}.icon{font-size:44px}.free{font-weight:700;margin-top:15px}.counter{font-size:34px;font-weight:800;margin:5px 0}
 .progress{height:11px;background:#e5e5e5;border-radius:20px;overflow:hidden}.progress div{height:100%;background:#111;transition:.25s}
 h1{font-size:24px}h2{font-size:19px;margin-top:0}p{line-height:1.5}
@@ -296,7 +296,8 @@ function activate(){
   if(!token)return;
   const status=document.createElement("div");
   status.className="notice";
-  status.textContent="Token akan diverifikasi melalui Firebase pada tahap integrasi.";\n  $("token").appendChild(status);
+  status.textContent="Token akan diverifikasi melalui Firebase pada tahap integrasi.";
+  $("token").appendChild(status);
 }
 
 update();
