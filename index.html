@@ -3,189 +3,247 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Technician Repair Assistant V1.1</title>
+<title>Technician Repair Assistant</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f3f3;color:#222}
-header{background:#111;color:#fff;padding:13px 16px;position:sticky;top:0;z-index:20}
-.header-row{display:flex;align-items:center;justify-content:space-between;gap:10px}.brand{font-weight:700;font-size:18px}
-.status{font-size:12px;color:#bbb;margin-top:3px}.status.ok{color:#9be7a4}.status.err{color:#ff9b9b}
-main{max-width:900px;margin:auto;padding:14px}.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,.07)}
-h1,h2,h3{margin-top:0}.search{display:flex;gap:8px}input,select,textarea,button{font:inherit}
-input,select,textarea{width:100%;padding:12px;border:1px solid #ccc;border-radius:10px;background:#fff}
-button{border:0;border-radius:10px;padding:11px 14px;background:#111;color:#fff;cursor:pointer}
-button.secondary{background:#e9e9e9;color:#111}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.menu{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.menu button{text-align:left;min-height:64px}
-.row{display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding:9px 0;gap:12px}
-.row:last-child{border-bottom:0}.label{color:#777;font-size:13px}.value{font-weight:600;text-align:right}
-.badge{display:inline-block;padding:5px 8px;border-radius:999px;background:#eee;font-size:12px}.empty{color:#777;text-align:center;padding:20px}
-.small{font-size:12px;color:#777;line-height:1.5}.hidden{display:none}.case{border:1px solid #eee;border-radius:12px;padding:12px;margin-top:10px}
-#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#111;color:#fff;padding:12px 16px;border-radius:10px;display:none;z-index:99;max-width:90%;text-align:center}
-@media(max-width:600px){.grid,.menu{grid-template-columns:1fr}.search{flex-direction:column}}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f3f3f3;color:#222}
+header{background:#111;color:#fff;padding:16px}
+.brand{font-size:19px;font-weight:700}
+.sub{font-size:12px;color:#aaa;margin-top:4px}
+main{max-width:700px;margin:auto;padding:18px}
+.card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 3px 14px rgba(0,0,0,.08);margin-bottom:16px}
+.welcome{text-align:center;padding:28px 20px}
+.icon{font-size:48px;margin-bottom:8px}
+h1{font-size:24px;margin:8px 0}
+h2{font-size:19px;margin-top:0}
+p{line-height:1.5}
+.free{font-size:17px;font-weight:700;margin:18px 0 10px}
+.counter{font-size:34px;font-weight:800;margin:4px 0}
+.progress{height:12px;background:#e5e5e5;border-radius:99px;overflow:hidden;margin:14px 0}
+.progress>div{height:100%;width:100%;background:#111;transition:.3s}
+button{width:100%;padding:14px;border:0;border-radius:11px;background:#111;color:#fff;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px}
+button.secondary{background:#e9e9e9;color:#111}
+.small{font-size:12px;color:#777}
+.hidden{display:none}
+.feature{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #eee}
+.feature:last-child{border:0}
+.feature b{display:block;margin-bottom:3px}
+.lock{text-align:center;padding:30px 15px}
+.lock .icon{font-size:42px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.actions button{margin:0}
+@media(max-width:500px){.actions{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
+
 <header>
-<div class="header-row">
-<div><div class="brand">TECHNICIAN REPAIR ASSISTANT</div><div id="connectionStatus" class="status">Menyiapkan database...</div></div>
-<button class="secondary" onclick="location.reload()">Refresh</button>
-</div>
+  <div class="brand">TECHNICIAN REPAIR ASSISTANT</div>
+  <div class="sub">Asisten diagnosis untuk teknisi servis HP</div>
 </header>
 
 <main>
-<section class="card">
-<h2>Cari HP</h2>
-<div class="search"><input id="searchInput" placeholder="Contoh: Redmi Note 10 / V2111"><button onclick="searchModel()">Cari</button></div>
-<div id="searchResult"></div>
+
+<!-- GERBANG AWAL: TANPA LOGIN -->
+<section id="welcomeScreen" class="card welcome">
+  <div class="icon">🔧</div>
+  <h1>Selamat Datang</h1>
+  <p>Gunakan Technician Repair Assistant untuk membantu pemeriksaan dan analisis kasus servis HP.</p>
+
+  <div class="free">🎁 25 Pengecekan GRATIS</div>
+  <div class="counter" id="counter">25 / 25</div>
+  <div class="progress"><div id="progressBar"></div></div>
+
+  <button onclick="startCheck()">MULAI PENGECEKAN</button>
+  <p class="small">Tidak perlu daftar atau login untuk mencoba.</p>
 </section>
 
 <section class="card">
-<h2>Menu</h2>
-<div class="menu">
-<button onclick="showSection('diagnosis')">🧪 Diagnosa Kerusakan</button>
-<button onclick="showSection('cases')">📚 Database Kasus</button>
-<button onclick="showSection('inputCase')">📝 Catat Kasus</button>
-<button onclick="showSection('models')">📱 Database Model</button>
-</div>
+  <h2>Yang Bisa Dicoba</h2>
+  <div class="feature">
+    <div>🔍</div><div><b>Cari Model HP</b><span class="small">Cari berdasarkan merek, model, atau kode model.</span></div>
+  </div>
+  <div class="feature">
+    <div>🧪</div><div><b>Analisis Kerusakan</b><span class="small">Masukkan gejala dan hasil pengukuran untuk mendapatkan panduan pemeriksaan.</span></div>
+  </div>
+  <div class="feature">
+    <div>📚</div><div><b>Database Kasus</b><span class="small">Lihat dan pelajari kasus repair yang tersedia.</span></div>
+  </div>
 </section>
 
-<section id="diagnosis" class="card hidden">
-<h2>🧪 Diagnosa Kerusakan</h2>
-<div class="grid">
-<input id="diagModel" placeholder="Model HP">
-<select id="diagComplaint"><option value="">Pilih keluhan</option><option>Mati total</option><option>Bootloop</option><option>Tidak charging</option><option>Tidak tampil</option><option>Tidak ada sinyal</option><option>Restart</option><option>Panas</option><option>Boros baterai</option></select>
-<input id="vbat" type="number" step="0.01" placeholder="VBAT (V), contoh 3.82">
-<input id="current" type="number" step="0.01" placeholder="Arus (A), contoh 0.08">
-<select id="usb"><option value="">USB terdeteksi?</option><option>Ya</option><option>Tidak</option></select>
-<select id="mode"><option value="">Mode terdeteksi</option><option>ADB</option><option>Fastboot</option><option>Qualcomm</option><option>MTK</option><option>Preloader</option><option>Tidak diketahui</option></select>
-</div><br><button onclick="runDiagnosis()">Analisis</button><div id="diagnosisResult"></div>
+<!-- SIMULASI HALAMAN DIAGNOSA -->
+<section id="diagnosisScreen" class="card hidden">
+  <h2>🧪 Pengecekan Gratis</h2>
+  <div class="small">Sisa pengecekan: <b id="diagRemaining">25</b></div>
+  <br>
+  <label class="small">Model HP</label>
+  <input id="model" placeholder="Contoh: Redmi Note 10">
+  <br><br>
+  <label class="small">Keluhan</label>
+  <select id="complaint">
+    <option value="">Pilih keluhan</option>
+    <option>Mati total</option>
+    <option>Bootloop</option>
+    <option>Tidak charging</option>
+    <option>Tidak tampil</option>
+    <option>Tidak ada sinyal</option>
+    <option>Restart</option>
+    <option>Panas</option>
+    <option>Boros baterai</option>
+  </select>
+  <button onclick="runFreeDiagnosis()">ANALISIS SEKARANG</button>
+  <button class="secondary" onclick="backHome()">Kembali</button>
+  <div id="result"></div>
 </section>
 
-<section id="cases" class="card hidden">
-<h2>📚 Database Kasus</h2>
-<input id="caseSearch" placeholder="Cari model, keluhan, atau komponen..." oninput="renderCases()">
-<div id="caseList"></div>
+<!-- LAYAR SETELAH 25 HABIS -->
+<section id="expiredScreen" class="card lock hidden">
+  <div class="icon">🔒</div>
+  <h2>25 Pengecekan Gratis Telah Habis</h2>
+  <p>Anda sudah mencoba seluruh pengecekan gratis. Untuk melanjutkan penggunaan Technician Repair Assistant, silakan membuat akun atau masuk ke akun yang sudah ada.</p>
+
+  <div class="actions">
+    <button onclick="showRegister()">DAFTAR</button>
+    <button class="secondary" onclick="showLogin()">MASUK</button>
+  </div>
+
+  <p class="small">Setelah masuk, Anda dapat mengaktifkan masa penggunaan menggunakan token.</p>
 </section>
 
-<section id="inputCase" class="card hidden">
-<h2>📝 Catat Kasus</h2>
-<div class="grid">
-<input id="caseModel" placeholder="Model HP *"><input id="caseComplaint" placeholder="Keluhan *">
-<input id="caseMeasurement" placeholder="Hasil pengukuran"><input id="caseComponent" placeholder="Komponen rusak">
-</div><br>
-<textarea id="caseAction" rows="3" placeholder="Tindakan / perbaikan"></textarea><br><br>
-<select id="caseResult"><option>Berhasil</option><option>Gagal</option><option>Belum selesai</option></select><br><br>
-<textarea id="caseNotes" rows="3" placeholder="Catatan teknisi"></textarea><br><br>
-<button onclick="saveCase()">Simpan Kasus</button>
+<!-- FORM DAFTAR -->
+<section id="registerScreen" class="card hidden">
+  <h2>📝 Daftar Akun</h2>
+  <p class="small">Pendaftaran baru muncul setelah kuota gratis habis.</p>
+  <input id="regId" placeholder="ID Teknisi">
+  <br><br>
+  <input id="regPass" type="password" placeholder="Password">
+  <br><br>
+  <input id="regPass2" type="password" placeholder="Ulangi password">
+  <button onclick="registerDemo()">DAFTAR</button>
+  <button class="secondary" onclick="backExpired()">Kembali</button>
 </section>
 
-<section id="models" class="card hidden">
-<h2>📱 Database Model</h2>
-<div class="search"><input id="modelSearch" placeholder="Cari model..." oninput="renderModels()"></div>
-<div id="modelList"></div>
-<p class="small">Model contoh dipakai sebagai data awal. Setelah Firebase terhubung, koleksi <b>phone_models</b> menjadi sumber utama.</p>
+<!-- FORM LOGIN -->
+<section id="loginScreen" class="card hidden">
+  <h2>🔑 Masuk</h2>
+  <input id="loginId" placeholder="ID Teknisi">
+  <br><br>
+  <input id="loginPass" type="password" placeholder="Password">
+  <button onclick="loginDemo()">MASUK</button>
+  <button class="secondary" onclick="backExpired()">Kembali</button>
 </section>
+
+<!-- AKTIVASI TOKEN -->
+<section id="tokenScreen" class="card hidden">
+  <h2>🎟️ Aktivasi Token</h2>
+  <p><b id="accountName"></b></p>
+  <div class="card" style="background:#f7f7f7;box-shadow:none">
+    <div class="small">Status akun</div>
+    <div id="accountStatus" style="font-size:20px;font-weight:700">Belum aktif</div>
+  </div>
+  <input id="tokenInput" placeholder="Masukkan token aktivasi">
+  <button onclick="activateDemo()">AKTIFKAN TOKEN</button>
+  <p class="small">V1 ini baru menyiapkan alur. Validasi token sebenarnya nanti dilakukan oleh Firebase.</p>
+</section>
+
 </main>
-<div id="toast"></div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+<script>
+const FREE_LIMIT=25;
+const KEY="tra_free_usage_v2";
+let used=parseInt(localStorage.getItem(KEY)||"0",10);
+if(isNaN(used)||used<0)used=0;
+if(used>FREE_LIMIT)used=FREE_LIMIT;
 
-const firebaseConfig = {
-  apiKey: "ISI_API_KEY",
-  authDomain: "ISI_PROJECT_ID.firebaseapp.com",
-  projectId: "ISI_PROJECT_ID",
-  storageBucket: "ISI_PROJECT_ID.firebasestorage.app",
-  messagingSenderId: "ISI_SENDER_ID",
-  appId: "ISI_APP_ID"
-};
-
-const demoModels=[
-{brand:"Xiaomi",model:"Redmi Note 10",code:"M2101K7AG",chipset:"Snapdragon 678",storage:"UFS"},
-{brand:"Vivo",model:"Y21",code:"V2111",chipset:"MediaTek Helio P35",storage:"eMMC"},
-{brand:"OPPO",model:"A5 2020",code:"CPH1931",chipset:"Snapdragon 665",storage:"eMMC"},
-{brand:"Samsung",model:"Galaxy A05s",code:"SM-A057F",chipset:"Snapdragon 680",storage:"eMMC"},
-{brand:"Realme",model:"C30",code:"RMX3581",chipset:"Unisoc",storage:"eMMC"}
-];
-
-let db=null, firebaseReady=false, models=[...demoModels], cases=[];
-
-function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.style.display="block";clearTimeout(window._toast);window._toast=setTimeout(()=>t.style.display="none",2500)}
-function setStatus(text,ok=false){const e=document.getElementById("connectionStatus");e.textContent=text;e.className="status"+(ok?" ok":"")}
-
-try{
- const configured=!firebaseConfig.apiKey.startsWith("ISI_") && !firebaseConfig.projectId.startsWith("ISI_");
- if(configured){
-   const app=initializeApp(firebaseConfig); db=getFirestore(app); firebaseReady=true; setStatus("Firebase aktif",true);
-   await loadFirebase();
- }else setStatus("Mode demo — Firebase belum diisi");
-}catch(e){console.error(e);setStatus("Firebase gagal — mode demo");}
-
-async function loadFirebase(){
- try{
-   const ms=await getDocs(query(collection(db,"phone_models"),limit(500)));
-   if(ms.size) models=ms.docs.map(d=>({id:d.id,...d.data()}));
-   const cs=await getDocs(query(collection(db,"repair_cases"),orderBy("createdAt","desc"),limit(200)));
-   cases=cs.docs.map(d=>({id:d.id,...d.data()}));
-   renderModels();renderCases();
- }catch(e){console.error(e);setStatus("Firebase aktif, tetapi database belum siap");toast("Firebase tersambung. Cek rules/struktur koleksi.");}
+function updateUI(){
+  const remaining=Math.max(0,FREE_LIMIT-used);
+  document.getElementById("counter").textContent=remaining+" / "+FREE_LIMIT;
+  document.getElementById("diagRemaining").textContent=remaining;
+  document.getElementById("progressBar").style.width=(remaining/FREE_LIMIT*100)+"%";
+  if(remaining<=0)showOnly("expiredScreen");
 }
 
-window.showSection=id=>{["diagnosis","cases","inputCase","models"].forEach(x=>document.getElementById(x).classList.toggle("hidden",x!==id));if(id==="cases")renderCases();if(id==="models")renderModels()};
+function showOnly(id){
+  ["welcomeScreen","diagnosisScreen","expiredScreen","registerScreen","loginScreen","tokenScreen"].forEach(x=>{
+    document.getElementById(x).classList.toggle("hidden",x!==id);
+  });
+}
 
-window.searchModel=()=>{
- const q=document.getElementById("searchInput").value.trim().toLowerCase(),box=document.getElementById("searchResult");
- if(!q){box.innerHTML='<div class="empty">Masukkan model atau kode model.</div>';return}
- const m=models.filter(x=>`${x.brand||""} ${x.model||""} ${x.code||""}`.toLowerCase().includes(q));
- box.innerHTML=m.length?m.map(x=>modelCard(x)).join(""):'<div class="empty">Model belum ditemukan.</div>';
-};
+function startCheck(){
+  if(used>=FREE_LIMIT){showOnly("expiredScreen");return;}
+  showOnly("diagnosisScreen");
+}
 
-function modelCard(m){return `<div class="case"><h3>${m.brand||""} ${m.model||""}</h3><div class="row"><span class="label">Kode</span><span class="value">${m.code||"-"}</span></div><div class="row"><span class="label">Chipset</span><span class="value">${m.chipset||"-"}</span></div><div class="row"><span class="label">Storage</span><span class="value">${m.storage||"-"}</span></div></div>`}
+function runFreeDiagnosis(){
+  if(used>=FREE_LIMIT){showOnly("expiredScreen");return;}
+  const model=document.getElementById("model").value.trim();
+  const complaint=document.getElementById("complaint").value;
+  if(!model||!complaint){
+    document.getElementById("result").innerHTML='<p style="color:#b00020">Model HP dan keluhan wajib diisi.</p>';
+    return;
+  }
 
-window.runDiagnosis=()=>{
- const model=document.getElementById("diagModel").value.trim()||"Model belum diisi", complaint=document.getElementById("diagComplaint").value;
- const v=parseFloat(document.getElementById("vbat").value),a=parseFloat(document.getElementById("current").value),usb=document.getElementById("usb").value,mode=document.getElementById("mode").value;
- let p=[];
- if(complaint==="Mati total"){
-   if(!isNaN(v)&&v<3.3)p.push("Periksa baterai dan jalur VBAT.");
-   if(!isNaN(a)&&a===0)p.push("Periksa jalur power utama, konektor baterai, PMIC, dan kemungkinan open circuit.");
-   if(!isNaN(a)&&a>0&&a<0.15)p.push("Arus rendah: periksa proses boot, power rail sekunder, storage, dan reset.");
-   if(usb==="Ya")p.push("USB terdeteksi. Identifikasi mode boot dan komunikasi dengan PC.");
-   if(mode)p.push(`Mode terdeteksi: ${mode}. Cocokkan prosedur dengan ${model}.`);
- }else if(complaint==="Tidak charging")p.push("Periksa adaptor/kabel, konektor USB, VBUS, ESD, IC charging, dan konektor baterai.");
- else if(complaint==="Tidak tampil")p.push("Bedakan LCD/backlight dengan masalah boot. Cek konsumsi arus dan respons USB/ADB.");
- else if(complaint==="Bootloop")p.push("Periksa firmware/software, kemudian storage dan jalur power bila flashing tidak menyelesaikan masalah.");
- else p.push("Kumpulkan gejala dan hasil pengukuran sebelum menentukan komponen.");
- document.getElementById("diagnosisResult").innerHTML=`<div class="case"><span class="badge">HASIL ANALISIS V1.1</span><h3>${model}</h3><p><b>Keluhan:</b> ${complaint||"-"}</p>${p.map(x=>`<div class="row"><span>•</span><span style="flex:1">${x}</span></div>`).join("")}<p class="small">Panduan pemeriksaan, bukan kepastian kerusakan.</p></div>`;
-};
+  /* SATU ANALISIS BERHASIL = SATU PENGECEKAN */
+  used++;
+  localStorage.setItem(KEY,used);
 
-window.saveCase=async()=>{
- const item={model:caseModel.value.trim(),complaint:caseComplaint.value.trim(),measurement:caseMeasurement.value.trim(),component:caseComponent.value.trim(),action:caseAction.value.trim(),result:caseResult.value,notes:caseNotes.value.trim(),createdAt:Date.now()};
- if(!item.model||!item.complaint){toast("Model HP dan keluhan wajib diisi.");return}
- try{
-   if(firebaseReady){const ref=await addDoc(collection(db,"repair_cases"),item);cases.unshift({id:ref.id,...item});toast("Kasus tersimpan ke Firebase.");}
-   else{cases.unshift({id:Date.now(),...item});localStorage.setItem("tra_demo_cases",JSON.stringify(cases));toast("Kasus tersimpan di mode demo.");}
-   ["caseModel","caseComplaint","caseMeasurement","caseComponent","caseAction","caseNotes"].forEach(id=>document.getElementById(id).value="");
-   renderCases();
- }catch(e){console.error(e);toast("Gagal menyimpan. Periksa Firestore Rules.");}
-};
+  let advice="";
+  if(complaint==="Mati total") advice="Periksa baterai, jalur VBAT, power rail utama, PMIC, proses boot, dan komunikasi USB.";
+  else if(complaint==="Tidak charging") advice="Periksa kabel/adaptor, konektor USB, VBUS, proteksi ESD, IC charging, dan konektor baterai.";
+  else if(complaint==="Bootloop") advice="Periksa firmware/software, kemudian storage dan jalur power bila masalah tetap terjadi.";
+  else if(complaint==="Tidak tampil") advice="Bedakan kerusakan LCD/backlight dengan masalah boot. Cek arus dan respons USB/ADB.";
+  else advice="Kumpulkan gejala dan hasil pengukuran lebih lengkap sebelum menentukan komponen.";
 
-function loadDemoCases(){try{return JSON.parse(localStorage.getItem("tra_demo_cases")||"[]")}catch{return[]}}
-if(!firebaseReady)cases=loadDemoCases();
+  const remaining=FREE_LIMIT-used;
+  document.getElementById("result").innerHTML=
+    '<div class="card" style="margin-top:16px;background:#f7f7f7;box-shadow:none">'+
+    '<b>Hasil pengecekan</b><p>'+model+' — '+complaint+'</p>'+
+    '<p>'+advice+'</p>'+
+    '<div class="small">Pengecekan terpakai: 1 &nbsp; | &nbsp; Sisa: '+remaining+'</div></div>';
 
-window.renderCases=()=>{
- const q=document.getElementById("caseSearch").value.trim().toLowerCase();
- const arr=cases.filter(c=>`${c.model||""} ${c.complaint||""} ${c.component||""}`.toLowerCase().includes(q));
- document.getElementById("caseList").innerHTML=arr.length?arr.map(c=>`<div class="case"><h3>${c.model}</h3><div class="row"><span class="label">Keluhan</span><span class="value">${c.complaint}</span></div><div class="row"><span class="label">Pengukuran</span><span class="value">${c.measurement||"-"}</span></div><div class="row"><span class="label">Komponen</span><span class="value">${c.component||"-"}</span></div><div class="row"><span class="label">Hasil</span><span class="value">${c.result||"-"}</span></div><p>${c.action||"-"}</p><p class="small">${c.notes||""}</p></div>`).join(""):'<div class="empty">Belum ada kasus tersimpan.</div>';
-};
+  updateUI();
+}
 
-window.renderModels=()=>{
- const q=(document.getElementById("modelSearch")?.value||"").trim().toLowerCase();
- const arr=models.filter(m=>`${m.brand||""} ${m.model||""} ${m.code||""}`.toLowerCase().includes(q));
- document.getElementById("modelList").innerHTML=arr.map(m=>`<div class="row"><span><b>${m.brand||""} ${m.model||""}</b><br><span class="label">${m.code||"-"}</span></span><span class="value">${m.chipset||"-"}</span></div>`).join("")||'<div class="empty">Model tidak ditemukan.</div>';
-};
+function backHome(){showOnly("welcomeScreen");updateUI()}
+function backExpired(){showOnly("expiredScreen");updateUI()}
 
-renderModels();renderCases();
+function showRegister(){showOnly("registerScreen")}
+function showLogin(){showOnly("loginScreen")}
+
+function registerDemo(){
+  const id=document.getElementById("regId").value.trim();
+  const p=document.getElementById("regPass").value;
+  const p2=document.getElementById("regPass2").value;
+  if(!id||!p){alert("ID dan password wajib diisi.");return}
+  if(p!==p2){alert("Password tidak sama.");return}
+  localStorage.setItem("tra_demo_account",JSON.stringify({id:id,password:p}));
+  alert("Akun demo berhasil dibuat. Silakan lanjut aktivasi token.");
+  openToken(id);
+}
+
+function loginDemo(){
+  const id=document.getElementById("loginId").value.trim();
+  const p=document.getElementById("loginPass").value;
+  let acc=null;
+  try{acc=JSON.parse(localStorage.getItem("tra_demo_account")||"null")}catch(e){}
+  if(!acc||acc.id!==id||acc.password!==p){alert("ID atau password salah pada mode demo.");return}
+  openToken(id);
+}
+
+function openToken(id){
+  showOnly("tokenScreen");
+  document.getElementById("accountName").textContent="ID Teknisi: "+id;
+}
+
+function activateDemo(){
+  const token=document.getElementById("tokenInput").value.trim();
+  if(!token){alert("Masukkan token.");return}
+  /* BELUM memvalidasi token sungguhan. Ini hanya alur UI. */
+  document.getElementById("accountStatus").textContent="Token siap diverifikasi";
+  alert("Alur token sudah siap. Validasi token Firebase akan dipasang pada tahap berikutnya.");
+}
+
+updateUI();
 </script>
 </body>
 </html>
