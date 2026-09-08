@@ -73,7 +73,7 @@ Bagian IC power terasa panas."></textarea>
   <label>Foto skematik / board / hasil ukur (opsional)</label>
   <div class="filebox">
     <input id="repairImage" type="file" accept="image/*">
-    <div class="small">Gambar akan ikut dikirim ke AI melalui backend pada tahap integrasi.</div>
+    <div class="small">Gambar akan dikirim bersama kasus ke AI melalui backend.</div>
   </div>
 
   <button id="sendBtn" onclick="sendToAI()">🤖 KIRIM KE AI</button>
@@ -208,19 +208,21 @@ async function sendToAI(){
     return;
   }
 
-  /*
-    Kuota dipotong SEKALI ketika kasus pertama kali dikirim.
-    Pertanyaan/jawaban lanjutan dalam kasus yang sama tidak memotong kuota.
-  */
-  if(!caseActive){
-    used++;
-    localStorage.setItem(KEY,used);
-    caseActive=true;
-    caseModel=model;
+  // Kasus baru belum memakai kuota.
+  // Kuota BARU dikurangi hanya setelah AI/backend benar-benar berhasil
+  // menerima kasus dan mengembalikan jawaban pertama.
+  const startingNewCase=!caseActive;
+  const proposedCaseNumber=used+1;
+
+  if(startingNewCase && used>=LIMIT){
+    showOnly("expired");
+    return;
   }
 
-  conversation.push({role:"user",content:message});
+  const previousConversation=conversation.slice();
 
+  // Tambahkan pesan sementara ke percakapan untuk dikirim ke backend.
+  conversation.push({role:"user",content:message});
   addMessage("user",message);
   $("message").value="";
   $("aiStatus").textContent="AI sedang menganalisis...";
@@ -228,17 +230,16 @@ async function sendToAI(){
 
   try{
     const payload={
-      model:caseModel,
+      model:model,
       conversation:conversation,
-      case_number:used,
+      case_number:proposedCaseNumber,
       has_image:!!file
     };
 
     /*
-      BACKEND AI:
+      BACKEND:
       POST /api/diagnose
-      Backend yang menyimpan API key OpenAI dan meneruskan percakapan.
-      Jangan menaruh API key OpenAI di HTML/browser.
+      API key OpenAI tetap di server, bukan di HTML.
     */
     const response=await fetch("/api/diagnose",{
       method:"POST",
@@ -247,30 +248,37 @@ async function sendToAI(){
     });
 
     if(!response.ok) throw new Error("AI backend belum terhubung.");
-    const data=await response.json();
 
+    const data=await response.json();
     const answer=data.answer || data.message;
+
     if(!answer) throw new Error("Backend tidak mengirim jawaban AI.");
+
+    // Hanya setelah jawaban AI berhasil diterima:
+    // kasus dianggap benar-benar dimulai dan 1 kuota dipakai.
+    if(startingNewCase){
+      used++;
+      localStorage.setItem(KEY,used);
+      caseActive=true;
+      caseModel=model;
+    }
 
     conversation.push({role:"assistant",content:answer});
     addMessage("assistant",answer);
-    $("aiStatus").textContent="Sisa pengecekan gratis: "+Math.max(0,LIMIT-used);
 
-    /*
-      Jika AI menyatakan kasus selesai, teknisi dapat menekan KASUS BARU.
-      Kuota baru dipotong saat kasus berikutnya benar-benar dimulai.
-    */
+    $("aiStatus").textContent=
+      "AI aktif • Sisa pengecekan gratis: "+Math.max(0,LIMIT-used);
+
   }catch(err){
-    /*
-      Jangan memberikan jawaban diagnosis palsu/canned response.
-      Jika backend belum tersambung, tampilkan status dengan jelas.
-      Kuota yang sudah terpotong tetap dianggap satu kasus yang dimulai.
-    */
+    // Jika AI gagal, jangan hitung kuota dan jangan menyimpan pesan
+    // sebagai bagian kasus yang sudah dimulai.
+    conversation=previousConversation;
+
+    $("aiStatus").textContent="AI belum terhubung.";
     addMessage("assistant",
-      "AI belum terhubung ke server. Silakan sambungkan backend /api/diagnose terlebih dahulu. " +
-      "Saya tidak akan memberikan jawaban diagnosis palsu dari daftar jawaban yang sudah disiapkan."
+      "⚠️ AI belum dapat menjawab karena server AI belum terhubung. " +
+      "Pengecekan gratis TIDAK dikurangi. Silakan coba lagi setelah backend AI aktif."
     );
-    $("aiStatus").textContent="Backend AI belum aktif.";
   }finally{
     $("sendBtn").disabled=false;
   }
