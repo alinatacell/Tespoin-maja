@@ -2,295 +2,203 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Technician Repair Assistant</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#f3f3f3;color:#222}
-header{background:#111;color:#fff;padding:16px}
-.brand{font-size:19px;font-weight:700}
-.sub{font-size:12px;color:#aaa;margin-top:4px}
-main{max-width:700px;margin:auto;padding:18px}
-.card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 3px 14px rgba(0,0,0,.08);margin-bottom:16px}
-.welcome{text-align:center;padding:28px 20px}
-.icon{font-size:48px;margin-bottom:8px}
-h1{font-size:24px;margin:8px 0}
-h2{font-size:19px;margin-top:0}
-p{line-height:1.5}
-.free{font-size:17px;font-weight:700;margin:18px 0 10px}
-.counter{font-size:34px;font-weight:800;margin:4px 0}
-.progress{height:12px;background:#e5e5e5;border-radius:99px;overflow:hidden;margin:14px 0}
-.progress>div{height:100%;width:100%;background:#111;transition:.3s}
-button{width:100%;padding:14px;border:0;border-radius:11px;background:#111;color:#fff;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px}
-button.secondary{background:#e9e9e9;color:#111}
-.small{font-size:12px;color:#777}
-.hidden{display:none}
-.feature{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #eee}
-.feature:last-child{border:0}
-.feature b{display:block;margin-bottom:3px}
-.lock{text-align:center;padding:30px 15px}
-.lock .icon{font-size:42px}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.actions button{margin:0}
-@media(max-width:500px){.actions{grid-template-columns:1fr}}
+*{box-sizing:border-box}body{margin:0;background:#f3f3f3;color:#222;font-family:Arial,sans-serif}
+header{background:#111;color:#fff;padding:15px 16px;position:sticky;top:0;z-index:5}
+.brand{font-size:19px;font-weight:700}.sub{font-size:12px;color:#aaa;margin-top:4px}
+main{max-width:720px;margin:auto;padding:16px}.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 3px 14px rgba(0,0,0,.07)}
+.welcome{text-align:center;padding:25px 18px}.icon{font-size:44px}.free{font-weight:700;margin-top:15px}.counter{font-size:34px;font-weight:800;margin:5px 0}
+.progress{height:11px;background:#e5e5e5;border-radius:20px;overflow:hidden}.progress div{height:100%;background:#111;transition:.25s}
+h1{font-size:24px}h2{font-size:19px;margin-top:0}p{line-height:1.5}
+label{display:block;font-size:12px;color:#666;margin:12px 0 6px}
+input,textarea,select{width:100%;padding:12px;border:1px solid #ccc;border-radius:10px;font:inherit;background:#fff}
+textarea{resize:vertical;min-height:120px}
+button{width:100%;border:0;border-radius:11px;padding:13px;margin-top:10px;background:#111;color:#fff;font-size:15px;font-weight:700}
+button.secondary{background:#e9e9e9;color:#111}.hidden{display:none}
+.small{font-size:12px;color:#777}.feature{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #eee}
+.feature:last-child{border-bottom:0}.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.actions button{margin:0}
+.result{margin-top:15px;background:#f7f7f7;border-radius:12px;padding:14px}.step{padding:9px 0;border-bottom:1px solid #e6e6e6}
+.step:last-child{border:0}.badge{display:inline-block;padding:5px 8px;border-radius:99px;background:#eee;font-size:11px;font-weight:700}
+.filebox{border:1px dashed #bbb;border-radius:10px;padding:12px}
+.notice{padding:11px;border-radius:10px;background:#f1f1f1;font-size:12px;color:#666}
+@media(max-width:520px){.actions{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-
 <header>
   <div class="brand">TECHNICIAN REPAIR ASSISTANT</div>
-  <div class="sub">Asisten diagnosis untuk teknisi servis HP</div>
+  <div class="sub">Asisten diagnosis teknisi servis HP</div>
 </header>
 
 <main>
-
-<!-- GERBANG AWAL: TANPA LOGIN -->
-<section id="welcomeScreen" class="card welcome">
+<section id="home" class="card welcome">
   <div class="icon">🔧</div>
   <h1>Selamat Datang</h1>
-  <p>Gunakan Technician Repair Assistant untuk membantu pemeriksaan dan analisis kasus servis HP.</p>
-
-  <div class="free">🎁 25 Pengecekan GRATIS</div>
+  <p>Jelaskan masalah HP dengan bahasa biasa. Nanti AI akan membantu menganalisis gejala dan menentukan langkah pemeriksaan secara bertahap.</p>
+  <div class="free">🎁 25 PENGECEKAN GRATIS</div>
   <div class="counter" id="counter">25 / 25</div>
-  <div class="progress"><div id="progressBar"></div></div>
-
-  <button onclick="startCheck()">MULAI PENGECEKAN</button>
+  <div class="progress"><div id="bar"></div></div>
+  <button onclick="startDiagnosis()">MULAI PENGECEKAN</button>
   <p class="small">Tidak perlu daftar atau login untuk mencoba.</p>
 </section>
 
 <section class="card">
-  <h2>Yang Bisa Dicoba</h2>
-  <div class="feature">
-    <div>🔍</div><div><b>Cari Model HP</b><span class="small">Cari berdasarkan merek, model, atau kode model.</span></div>
-  </div>
-  <div class="feature">
-    <div>🧪</div><div><b>Analisis Kerusakan</b><span class="small">Masukkan gejala dan hasil pengukuran untuk mendapatkan panduan pemeriksaan.</span></div>
-  </div>
-  <div class="feature">
-    <div>📚</div><div><b>Database Kasus</b><span class="small">Lihat dan pelajari kasus repair yang tersedia.</span></div>
-  </div>
+  <h2>Yang Bisa Dilakukan</h2>
+  <div class="feature">🔍 <div><b>Cari model HP</b><br><span class="small">Model dan kode perangkat.</span></div></div>
+  <div class="feature">🧪 <div><b>Ceritakan keluhan</b><br><span class="small">Tidak perlu memilih kategori. Tulis bebas.</span></div></div>
+  <div class="feature">📐 <div><b>Masukkan hasil pengukuran</b><br><span class="small">Tegangan, arus, mode USB, dan hasil pemeriksaan.</span></div></div>
+  <div class="feature">📷 <div><b>Skematik / board</b><br><span class="small">Nantinya AI dapat diberi gambar skematik atau board untuk membantu penelusuran.</span></div></div>
 </section>
 
-<!-- SIMULASI HALAMAN DIAGNOSA -->
-<section id="diagnosisScreen" class="card hidden">
+<section id="diagnosis" class="card hidden">
   <h2>🧪 Pengecekan Gratis</h2>
-  <div class="small">Sisa pengecekan: <b id="diagRemaining">25</b></div>
-  <br>
-  <label class="small">Model HP</label>
-  <input id="model" placeholder="Contoh: Redmi Note 10">
-  <br><br>
-  <label class="small">Ceritakan keluhan HP</label>
-  <textarea id="complaint" rows="5" placeholder="Contoh:
+  <div class="small">Sisa analisis gratis: <b id="remaining">25</b></div>
+
+  <label>Model / kode HP *</label>
+  <input id="model" placeholder="Contoh: Vivo Y21 / V2111">
+
+  <label>Keluhan HP *</label>
+  <textarea id="complaint" placeholder="Ceritakan dengan bahasa bebas. Contoh:
 HP Vivo Y21 tidak bisa charging.
 Sudah ganti charger dan kabel tetap tidak masuk.
 Saat dicolok tidak ada tanda charging.
-Tegangan baterai 3,8V."></textarea>
-  <p class="small">Tulis keluhan dengan bahasa bebas. Nanti mesin AI akan membaca keluhan, mencari kemungkinan penyebab, lalu menentukan pemeriksaan berikutnya.</p>
-  <button onclick="runFreeDiagnosis()">ANALISIS DENGAN AI</button>
-  <button class="secondary" onclick="backHome()">Kembali</button>
+Baterai 3,8V."></textarea>
+
+  <label>Hasil pengukuran (opsional)</label>
+  <textarea id="measurement" placeholder="Contoh:
+VBAT 3,82V
+VBUS 5,02V
+Arus 0,08A
+PC tidak mendeteksi
+Tidak ada panas"></textarea>
+
+  <label>Foto skematik / board / hasil pengukuran (opsional)</label>
+  <div class="filebox">
+    <input id="repairImage" type="file" accept="image/*">
+    <div class="small">Pada tahap AI berikutnya gambar ini dikirim ke backend untuk dianalisis bersama keluhan.</div>
+  </div>
+
+  <button onclick="analyze()">🤖 ANALISIS DENGAN AI</button>
+  <button class="secondary" onclick="show('home')">Kembali</button>
   <div id="result"></div>
 </section>
 
-<!-- LAYAR SETELAH 25 HABIS -->
-<section id="expiredScreen" class="card lock hidden">
+<section id="expired" class="card welcome hidden">
   <div class="icon">🔒</div>
   <h2>25 Pengecekan Gratis Telah Habis</h2>
-  <p>Anda sudah mencoba seluruh pengecekan gratis. Untuk melanjutkan penggunaan Technician Repair Assistant, silakan membuat akun atau masuk ke akun yang sudah ada.</p>
-
+  <p>Anda sudah mencoba 25 analisis gratis. Untuk melanjutkan, silakan daftar akun baru atau masuk ke akun yang sudah ada.</p>
   <div class="actions">
-    <button onclick="showRegister()">DAFTAR</button>
-    <button class="secondary" onclick="showLogin()">MASUK</button>
+    <button onclick="show('register')">DAFTAR</button>
+    <button class="secondary" onclick="show('login')">MASUK</button>
   </div>
-
-  <p class="small">Setelah masuk, Anda dapat mengaktifkan masa penggunaan menggunakan token.</p>
+  <p class="small">Setelah masuk, masa aktif dapat diperpanjang menggunakan token.</p>
 </section>
 
-<!-- FORM DAFTAR -->
-<section id="registerScreen" class="card hidden">
-  <h2>📝 Daftar Akun</h2>
-  <p class="small">Pendaftaran baru muncul setelah kuota gratis habis.</p>
-  <input id="regId" placeholder="ID Teknisi">
-  <br><br>
-  <input id="regPass" type="password" placeholder="Password">
-  <br><br>
-  <input id="regPass2" type="password" placeholder="Ulangi password">
-  <button onclick="registerDemo()">DAFTAR</button>
-  <button class="secondary" onclick="backExpired()">Kembali</button>
+<section id="register" class="card hidden">
+  <h2>📝 Daftar</h2>
+  <p class="small">Form ini adalah rancangan alur. Registrasi sebenarnya akan menggunakan Firebase.</p>
+  <label>ID Teknisi *</label><input id="regId" placeholder="Buat ID teknisi">
+  <label>Password *</label><input id="regPass" type="password" placeholder="Password">
+  <label>Ulangi Password *</label><input id="regPass2" type="password" placeholder="Ulangi password">
+  <button onclick="register()">DAFTAR</button>
+  <button class="secondary" onclick="show('expired')">Kembali</button>
 </section>
 
-<!-- FORM LOGIN -->
-<section id="loginScreen" class="card hidden">
+<section id="login" class="card hidden">
   <h2>🔑 Masuk</h2>
-  <input id="loginId" placeholder="ID Teknisi">
-  <br><br>
-  <input id="loginPass" type="password" placeholder="Password">
-  <button onclick="loginDemo()">MASUK</button>
-  <button class="secondary" onclick="backExpired()">Kembali</button>
+  <p class="small">Login sebenarnya akan terhubung ke Firebase.</p>
+  <label>ID Teknisi *</label><input id="loginId" placeholder="ID Teknisi">
+  <label>Password *</label><input id="loginPass" type="password" placeholder="Password">
+  <button onclick="login()">MASUK</button>
+  <button class="secondary" onclick="show('expired')">Kembali</button>
 </section>
 
-<!-- AKTIVASI TOKEN -->
-<section id="tokenScreen" class="card hidden">
+<section id="token" class="card hidden">
   <h2>🎟️ Aktivasi Token</h2>
-  <p><b id="accountName"></b></p>
-  <div class="card" style="background:#f7f7f7;box-shadow:none">
-    <div class="small">Status akun</div>
-    <div id="accountStatus" style="font-size:20px;font-weight:700">Belum aktif</div>
-  </div>
-  <input id="tokenInput" placeholder="Masukkan token aktivasi">
-  <button onclick="activateDemo()">AKTIFKAN TOKEN</button>
-  <p class="small">V1 ini baru menyiapkan alur. Validasi token sebenarnya nanti dilakukan oleh Firebase.</p>
+  <div class="notice">Setelah akun aktif, masukkan token untuk mendapatkan masa penggunaan. Validasi token akan dilakukan di server/Firebase, bukan di HTML.</div>
+  <label>Token Aktivasi</label><input id="tokenInput" placeholder="Masukkan token">
+  <button onclick="activate()">AKTIFKAN TOKEN</button>
+  <button class="secondary" onclick="show('home')">Kembali</button>
 </section>
-
 </main>
 
 <script>
-const FREE_LIMIT=25;
-const KEY="tra_free_usage_v2";
-let used=parseInt(localStorage.getItem(KEY)||"0",10);
-if(isNaN(used)||used<0)used=0;
-if(used>FREE_LIMIT)used=FREE_LIMIT;
+const LIMIT=25, KEY="tra_free_analysis_v3";
+let used=Math.min(LIMIT,Math.max(0,parseInt(localStorage.getItem(KEY)||"0",10)||0));
 
-function updateUI(){
-  const remaining=Math.max(0,FREE_LIMIT-used);
-  document.getElementById("counter").textContent=remaining+" / "+FREE_LIMIT;
-  document.getElementById("diagRemaining").textContent=remaining;
-  document.getElementById("progressBar").style.width=(remaining/FREE_LIMIT*100)+"%";
-  if(remaining<=0)showOnly("expiredScreen");
+function $(id){return document.getElementById(id)}
+function show(id){
+  ["home","diagnosis","expired","register","login","token"].forEach(x=>$(x).classList.toggle("hidden",x!==id));
+  update();
 }
-
+function update(){
+  const left=Math.max(0,LIMIT-used);
+  $("counter").textContent=left+" / "+LIMIT;
+  $("remaining").textContent=left;
+  $("bar").style.width=(left/LIMIT*100)+"%";
+  if(left===0) showOnly("expired");
+}
 function showOnly(id){
-  ["welcomeScreen","diagnosisScreen","expiredScreen","registerScreen","loginScreen","tokenScreen"].forEach(x=>{
-    document.getElementById(x).classList.toggle("hidden",x!==id);
-  });
+  ["home","diagnosis","expired","register","login","token"].forEach(x=>$(x).classList.toggle("hidden",x!==id));
 }
-
-function startCheck(){
-  if(used>=FREE_LIMIT){showOnly("expiredScreen");return;}
-  showOnly("diagnosisScreen");
+function startDiagnosis(){
+  if(used>=LIMIT){showOnly("expired");return}
+  showOnly("diagnosis");
+  update();
 }
-
-function runFreeDiagnosis(){
-  if(used>=FREE_LIMIT){showOnly("expiredScreen");return;}
-
-  const model=document.getElementById("model").value.trim();
-  const complaint=document.getElementById("complaint").value.trim();
-
+function escapeHTML(s){
+  return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+}
+function analyze(){
+  if(used>=LIMIT){showOnly("expired");return}
+  const model=$("model").value.trim(), complaint=$("complaint").value.trim(), measurement=$("measurement").value.trim();
   if(!model||!complaint){
-    document.getElementById("result").innerHTML='<p style="color:#b00020">Model HP dan keluhan wajib diisi.</p>';
-    return;
+    $("result").innerHTML='<div class="result">⚠️ Model dan keluhan wajib diisi.</div>';return;
   }
 
-  /*
-    SATU ANALISIS BERHASIL = SATU PENGECEKAN.
-    Pada V1 ini analisis masih berupa simulasi lokal.
-    Tahap berikutnya fungsi ini akan mengirim model + keluhan
-    ke AI backend/Firebase dan menampilkan jawaban AI.
-  */
-  used++;
-  localStorage.setItem(KEY,used);
+  // Hanya analisis yang benar-benar dikirim/berhasil yang memakai 1 kuota.
+  used++; localStorage.setItem(KEY,used);
 
-  const lower=complaint.toLowerCase();
-  let analysis=[];
+  const text=complaint.toLowerCase();
+  let guidance=[];
+  if(/charging|cas|charger|isi daya/.test(text))
+    guidance=["Keluhan mengarah ke rangkaian charging.","Periksa konektor dan jalur VBUS.","Ukur jalur input menuju proteksi/IC charging.","Jika input normal, lanjutkan pemeriksaan IC charging dan jalur baterai."];
+  else if(/mati|matot|tidak nyala|dead/.test(text))
+    guidance=["Keluhan mengarah ke power/boot.","Periksa VBAT dan konektor baterai.","Ukur konsumsi arus saat tombol power ditekan.","Jika USB terdeteksi, identifikasi mode boot sebelum menentukan langkah berikutnya."];
+  else if(/bootloop|restart|reboot/.test(text))
+    guidance=["Keluhan mengarah ke proses boot.","Periksa apakah perangkat terdeteksi ADB/Fastboot/mode servis.","Periksa firmware/software.","Jika software tidak menyelesaikan masalah, lanjutkan pemeriksaan storage dan power."];
+  else
+    guidance=["Keluhan perlu dianalisis bertahap.","Periksa kondisi fisik dan riwayat perangkat.","Gunakan hasil pengukuran untuk mempersempit kemungkinan kerusakan.","Jangan mengganti komponen hanya berdasarkan gejala tunggal."];
 
-  if(/charg|cas|isi daya|tidak masuk/.test(lower)){
-    analysis=[
-      "Keluhan mengarah ke masalah charging.",
-      "Periksa charger dan kabel terlebih dahulu.",
-      "Periksa konektor USB/charging port dan kondisi pin.",
-      "Ukur VBUS dari konektor USB dan periksa jalur menuju IC charging.",
-      "Jika jalur input normal, lanjutkan pemeriksaan proteksi ESD, IC charging, dan konektor baterai."
-    ];
-  }else if(/mati|matot|tidak nyala|dead/.test(lower)){
-    analysis=[
-      "Keluhan mengarah ke masalah power/boot.",
-      "Periksa tegangan baterai dan konektor baterai.",
-      "Ukur konsumsi arus saat tombol power ditekan.",
-      "Periksa jalur power utama dan kemungkinan short.",
-      "Jika USB terdeteksi, lanjutkan pemeriksaan mode boot dan komunikasi dengan PC."
-    ];
-  }else if(/bootloop|restart|reboot/.test(lower)){
-    analysis=[
-      "Keluhan mengarah ke masalah proses boot.",
-      "Periksa apakah perangkat masih terdeteksi ADB/Fastboot atau mode servis.",
-      "Periksa firmware/software terlebih dahulu.",
-      "Jika software normal tetapi tetap bootloop, periksa storage dan jalur power."
-    ];
-  }else if(/lcd|layar|display|tampil|blank/.test(lower)){
-    analysis=[
-      "Keluhan mengarah ke bagian display atau proses boot.",
-      "Pastikan perangkat benar-benar menyala dengan memeriksa konsumsi arus.",
-      "Periksa konektor LCD dan jalur display.",
-      "Bedakan kerusakan LCD/backlight dengan kerusakan motherboard."
-    ];
-  }else{
-    analysis=[
-      "AI perlu membaca gejala secara lebih detail sebelum menentukan kemungkinan kerusakan.",
-      "Periksa kondisi fisik dan riwayat kerusakan HP.",
-      "Catat konsumsi arus, tegangan baterai, serta apakah USB/PC mendeteksi perangkat.",
-      "Lakukan pengukuran pada jalur yang relevan sebelum mengganti komponen."
-    ];
-  }
-
-  const remaining=FREE_LIMIT-used;
-  document.getElementById("result").innerHTML=
-    '<div class="card" style="margin-top:16px;background:#f7f7f7;box-shadow:none">'+
-    '<b>🤖 Analisis Teknisi Repair Assistant</b>'+
-    '<p><b>Model:</b> '+escapeHtml(model)+'</p>'+
-    '<p><b>Keluhan teknisi:</b><br>'+escapeHtml(complaint).replace(/\n/g,"<br>")+'</p>'+
-    '<p><b>Kemungkinan & langkah pemeriksaan:</b></p>'+
-    '<ol>'+analysis.map(x=>'<li style="margin:8px 0">'+x+'</li>').join("")+'</ol>'+
-    '<div class="small">Pengecekan terpakai: 1 &nbsp; | &nbsp; Sisa: '+remaining+
-    '<br><br>Catatan: pada versi berikutnya bagian ini akan dihubungkan ke AI sungguhan agar jawaban berdasarkan database model, kasus repair, pengukuran, dan pengetahuan teknisi.</div></div>';
-
-  updateUI();
+  $("result").innerHTML='<div class="result"><span class="badge">SIMULASI AI — VERSI INDEX</span>'+
+    '<p><b>Model:</b> '+escapeHTML(model)+'</p>'+
+    '<p><b>Keluhan:</b><br>'+escapeHTML(complaint).replace(/\n/g,"<br>")+'</p>'+
+    (measurement?'<p><b>Pengukuran:</b><br>'+escapeHTML(measurement).replace(/\n/g,"<br>")+'</p>':'')+
+    '<p><b>Langkah pemeriksaan awal:</b></p>'+
+    guidance.map((x,i)=>'<div class="step">'+(i+1)+'. '+x+'</div>').join("")+
+    '<p class="small">Sisa analisis gratis: '+(LIMIT-used)+'<br>Versi berikutnya akan mengirim data ini ke backend AI dan dapat menyertakan gambar skematik/board.</p></div>';
+  update();
 }
-
-function escapeHtml(value){
-  return value.replace(/[&<>"']/g,function(c){
-    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c];
-  });
+function register(){
+  const id=$("regId").value.trim(),p=$("regPass").value,p2=$("regPass2").value;
+  if(!id||!p){$("regId").focus();return}
+  if(p!==p2){$("regPass2").focus();return}
+  showOnly("token"); $("tokenInput").value="";
 }
-
-function backHome(){showOnly("welcomeScreen");updateUI()}
-function backExpired(){showOnly("expiredScreen");updateUI()}
-
-function showRegister(){showOnly("registerScreen")}
-function showLogin(){showOnly("loginScreen")}
-
-function registerDemo(){
-  const id=document.getElementById("regId").value.trim();
-  const p=document.getElementById("regPass").value;
-  const p2=document.getElementById("regPass2").value;
-  if(!id||!p){alert("ID dan password wajib diisi.");return}
-  if(p!==p2){alert("Password tidak sama.");return}
-  localStorage.setItem("tra_demo_account",JSON.stringify({id:id,password:p}));
-  alert("Akun demo berhasil dibuat. Silakan lanjut aktivasi token.");
-  openToken(id);
+function login(){
+  const id=$("loginId").value.trim(),p=$("loginPass").value;
+  if(!id||!p){$("loginId").focus();return}
+  showOnly("token"); $("tokenInput").value="";
 }
-
-function loginDemo(){
-  const id=document.getElementById("loginId").value.trim();
-  const p=document.getElementById("loginPass").value;
-  let acc=null;
-  try{acc=JSON.parse(localStorage.getItem("tra_demo_account")||"null")}catch(e){}
-  if(!acc||acc.id!==id||acc.password!==p){alert("ID atau password salah pada mode demo.");return}
-  openToken(id);
+function activate(){
+  const token=$("tokenInput").value.trim();
+  if(!token)return;
+  // Validasi token sungguhan dipasang setelah Firebase/backend siap.
+  alert("Token akan diverifikasi melalui Firebase pada tahap berikutnya.");
 }
-
-function openToken(id){
-  showOnly("tokenScreen");
-  document.getElementById("accountName").textContent="ID Teknisi: "+id;
-}
-
-function activateDemo(){
-  const token=document.getElementById("tokenInput").value.trim();
-  if(!token){alert("Masukkan token.");return}
-  /* BELUM memvalidasi token sungguhan. Ini hanya alur UI. */
-  document.getElementById("accountStatus").textContent="Token siap diverifikasi";
-  alert("Alur token sudah siap. Validasi token Firebase akan dipasang pada tahap berikutnya.");
-}
-
-updateUI();
+update();
 </script>
 </body>
 </html>
