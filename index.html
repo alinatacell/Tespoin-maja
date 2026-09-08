@@ -79,19 +79,14 @@ button.secondary{background:#e9e9e9;color:#111}
   <label class="small">Model HP</label>
   <input id="model" placeholder="Contoh: Redmi Note 10">
   <br><br>
-  <label class="small">Keluhan</label>
-  <select id="complaint">
-    <option value="">Pilih keluhan</option>
-    <option>Mati total</option>
-    <option>Bootloop</option>
-    <option>Tidak charging</option>
-    <option>Tidak tampil</option>
-    <option>Tidak ada sinyal</option>
-    <option>Restart</option>
-    <option>Panas</option>
-    <option>Boros baterai</option>
-  </select>
-  <button onclick="runFreeDiagnosis()">ANALISIS SEKARANG</button>
+  <label class="small">Ceritakan keluhan HP</label>
+  <textarea id="complaint" rows="5" placeholder="Contoh:
+HP Vivo Y21 tidak bisa charging.
+Sudah ganti charger dan kabel tetap tidak masuk.
+Saat dicolok tidak ada tanda charging.
+Tegangan baterai 3,8V."></textarea>
+  <p class="small">Tulis keluhan dengan bahasa bebas. Nanti mesin AI akan membaca keluhan, mencari kemungkinan penyebab, lalu menentukan pemeriksaan berikutnya.</p>
+  <button onclick="runFreeDiagnosis()">ANALISIS DENGAN AI</button>
   <button class="secondary" onclick="backHome()">Kembali</button>
   <div id="result"></div>
 </section>
@@ -176,32 +171,84 @@ function startCheck(){
 
 function runFreeDiagnosis(){
   if(used>=FREE_LIMIT){showOnly("expiredScreen");return;}
+
   const model=document.getElementById("model").value.trim();
-  const complaint=document.getElementById("complaint").value;
+  const complaint=document.getElementById("complaint").value.trim();
+
   if(!model||!complaint){
     document.getElementById("result").innerHTML='<p style="color:#b00020">Model HP dan keluhan wajib diisi.</p>';
     return;
   }
 
-  /* SATU ANALISIS BERHASIL = SATU PENGECEKAN */
+  /*
+    SATU ANALISIS BERHASIL = SATU PENGECEKAN.
+    Pada V1 ini analisis masih berupa simulasi lokal.
+    Tahap berikutnya fungsi ini akan mengirim model + keluhan
+    ke AI backend/Firebase dan menampilkan jawaban AI.
+  */
   used++;
   localStorage.setItem(KEY,used);
 
-  let advice="";
-  if(complaint==="Mati total") advice="Periksa baterai, jalur VBAT, power rail utama, PMIC, proses boot, dan komunikasi USB.";
-  else if(complaint==="Tidak charging") advice="Periksa kabel/adaptor, konektor USB, VBUS, proteksi ESD, IC charging, dan konektor baterai.";
-  else if(complaint==="Bootloop") advice="Periksa firmware/software, kemudian storage dan jalur power bila masalah tetap terjadi.";
-  else if(complaint==="Tidak tampil") advice="Bedakan kerusakan LCD/backlight dengan masalah boot. Cek arus dan respons USB/ADB.";
-  else advice="Kumpulkan gejala dan hasil pengukuran lebih lengkap sebelum menentukan komponen.";
+  const lower=complaint.toLowerCase();
+  let analysis=[];
+
+  if(/charg|cas|isi daya|tidak masuk/.test(lower)){
+    analysis=[
+      "Keluhan mengarah ke masalah charging.",
+      "Periksa charger dan kabel terlebih dahulu.",
+      "Periksa konektor USB/charging port dan kondisi pin.",
+      "Ukur VBUS dari konektor USB dan periksa jalur menuju IC charging.",
+      "Jika jalur input normal, lanjutkan pemeriksaan proteksi ESD, IC charging, dan konektor baterai."
+    ];
+  }else if(/mati|matot|tidak nyala|dead/.test(lower)){
+    analysis=[
+      "Keluhan mengarah ke masalah power/boot.",
+      "Periksa tegangan baterai dan konektor baterai.",
+      "Ukur konsumsi arus saat tombol power ditekan.",
+      "Periksa jalur power utama dan kemungkinan short.",
+      "Jika USB terdeteksi, lanjutkan pemeriksaan mode boot dan komunikasi dengan PC."
+    ];
+  }else if(/bootloop|restart|reboot/.test(lower)){
+    analysis=[
+      "Keluhan mengarah ke masalah proses boot.",
+      "Periksa apakah perangkat masih terdeteksi ADB/Fastboot atau mode servis.",
+      "Periksa firmware/software terlebih dahulu.",
+      "Jika software normal tetapi tetap bootloop, periksa storage dan jalur power."
+    ];
+  }else if(/lcd|layar|display|tampil|blank/.test(lower)){
+    analysis=[
+      "Keluhan mengarah ke bagian display atau proses boot.",
+      "Pastikan perangkat benar-benar menyala dengan memeriksa konsumsi arus.",
+      "Periksa konektor LCD dan jalur display.",
+      "Bedakan kerusakan LCD/backlight dengan kerusakan motherboard."
+    ];
+  }else{
+    analysis=[
+      "AI perlu membaca gejala secara lebih detail sebelum menentukan kemungkinan kerusakan.",
+      "Periksa kondisi fisik dan riwayat kerusakan HP.",
+      "Catat konsumsi arus, tegangan baterai, serta apakah USB/PC mendeteksi perangkat.",
+      "Lakukan pengukuran pada jalur yang relevan sebelum mengganti komponen."
+    ];
+  }
 
   const remaining=FREE_LIMIT-used;
   document.getElementById("result").innerHTML=
     '<div class="card" style="margin-top:16px;background:#f7f7f7;box-shadow:none">'+
-    '<b>Hasil pengecekan</b><p>'+model+' — '+complaint+'</p>'+
-    '<p>'+advice+'</p>'+
-    '<div class="small">Pengecekan terpakai: 1 &nbsp; | &nbsp; Sisa: '+remaining+'</div></div>';
+    '<b>🤖 Analisis Teknisi Repair Assistant</b>'+
+    '<p><b>Model:</b> '+escapeHtml(model)+'</p>'+
+    '<p><b>Keluhan teknisi:</b><br>'+escapeHtml(complaint).replace(/\n/g,"<br>")+'</p>'+
+    '<p><b>Kemungkinan & langkah pemeriksaan:</b></p>'+
+    '<ol>'+analysis.map(x=>'<li style="margin:8px 0">'+x+'</li>').join("")+'</ol>'+
+    '<div class="small">Pengecekan terpakai: 1 &nbsp; | &nbsp; Sisa: '+remaining+
+    '<br><br>Catatan: pada versi berikutnya bagian ini akan dihubungkan ke AI sungguhan agar jawaban berdasarkan database model, kasus repair, pengukuran, dan pengetahuan teknisi.</div></div>';
 
   updateUI();
+}
+
+function escapeHtml(value){
+  return value.replace(/[&<>"']/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c];
+  });
 }
 
 function backHome(){showOnly("welcomeScreen");updateUI()}
