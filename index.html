@@ -3,288 +3,189 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Technician Repair Assistant V1</title>
+<title>Technician Repair Assistant V1.1</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#f4f4f4;color:#222}
-header{background:#111;color:#fff;padding:14px 16px;position:sticky;top:0;z-index:10}
-.header-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.brand{font-weight:700;font-size:18px}
-.status{font-size:12px;color:#bbb}
-main{max-width:900px;margin:auto;padding:16px}
-.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,.07)}
-h1,h2,h3{margin-top:0}
-.search{display:flex;gap:8px}
-input,select,textarea,button{font:inherit}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f3f3;color:#222}
+header{background:#111;color:#fff;padding:13px 16px;position:sticky;top:0;z-index:20}
+.header-row{display:flex;align-items:center;justify-content:space-between;gap:10px}.brand{font-weight:700;font-size:18px}
+.status{font-size:12px;color:#bbb;margin-top:3px}.status.ok{color:#9be7a4}.status.err{color:#ff9b9b}
+main{max-width:900px;margin:auto;padding:14px}.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,.07)}
+h1,h2,h3{margin-top:0}.search{display:flex;gap:8px}input,select,textarea,button{font:inherit}
 input,select,textarea{width:100%;padding:12px;border:1px solid #ccc;border-radius:10px;background:#fff}
 button{border:0;border-radius:10px;padding:11px 14px;background:#111;color:#fff;cursor:pointer}
-button.secondary{background:#e9e9e9;color:#111}
-button.warn{background:#c98b00}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.menu{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.menu button{text-align:left;min-height:64px}
-.result{margin-top:12px}
+button.secondary{background:#e9e9e9;color:#111}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.menu{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.menu button{text-align:left;min-height:64px}
 .row{display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding:9px 0;gap:12px}
-.row:last-child{border-bottom:0}
-.label{color:#777;font-size:13px}
-.value{font-weight:600;text-align:right}
-.badge{display:inline-block;padding:5px 8px;border-radius:999px;background:#eee;font-size:12px}
-.empty{color:#777;text-align:center;padding:20px}
-.small{font-size:12px;color:#777;line-height:1.5}
-.hidden{display:none}
+.row:last-child{border-bottom:0}.label{color:#777;font-size:13px}.value{font-weight:600;text-align:right}
+.badge{display:inline-block;padding:5px 8px;border-radius:999px;background:#eee;font-size:12px}.empty{color:#777;text-align:center;padding:20px}
+.small{font-size:12px;color:#777;line-height:1.5}.hidden{display:none}.case{border:1px solid #eee;border-radius:12px;padding:12px;margin-top:10px}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#111;color:#fff;padding:12px 16px;border-radius:10px;display:none;z-index:99;max-width:90%;text-align:center}
 @media(max-width:600px){.grid,.menu{grid-template-columns:1fr}.search{flex-direction:column}}
 </style>
 </head>
 <body>
 <header>
-  <div class="header-row">
-    <div>
-      <div class="brand">TECHNICIAN REPAIR ASSISTANT</div>
-      <div class="status" id="connectionStatus">Mode demo — Firebase belum dikonfigurasi</div>
-    </div>
-    <button class="secondary" onclick="location.reload()">Refresh</button>
-  </div>
+<div class="header-row">
+<div><div class="brand">TECHNICIAN REPAIR ASSISTANT</div><div id="connectionStatus" class="status">Menyiapkan database...</div></div>
+<button class="secondary" onclick="location.reload()">Refresh</button>
+</div>
 </header>
 
 <main>
-  <section class="card">
-    <h2>Cari HP</h2>
-    <div class="search">
-      <input id="searchInput" placeholder="Contoh: Redmi Note 10 / V2111">
-      <button onclick="searchModel()">Cari</button>
-    </div>
-    <div id="searchResult" class="result"></div>
-  </section>
+<section class="card">
+<h2>Cari HP</h2>
+<div class="search"><input id="searchInput" placeholder="Contoh: Redmi Note 10 / V2111"><button onclick="searchModel()">Cari</button></div>
+<div id="searchResult"></div>
+</section>
 
-  <section class="card">
-    <h2>Menu</h2>
-    <div class="menu">
-      <button onclick="showSection('diagnosis')">🧪 Diagnosa Kerusakan</button>
-      <button onclick="showSection('cases')">📚 Database Kasus</button>
-      <button onclick="showSection('inputCase')">📝 Catat Kasus</button>
-      <button onclick="showSection('models')">📱 Database Model</button>
-    </div>
-  </section>
+<section class="card">
+<h2>Menu</h2>
+<div class="menu">
+<button onclick="showSection('diagnosis')">🧪 Diagnosa Kerusakan</button>
+<button onclick="showSection('cases')">📚 Database Kasus</button>
+<button onclick="showSection('inputCase')">📝 Catat Kasus</button>
+<button onclick="showSection('models')">📱 Database Model</button>
+</div>
+</section>
 
-  <section id="diagnosis" class="card hidden">
-    <h2>🧪 Diagnosa</h2>
-    <div class="grid">
-      <div>
-        <label class="label">Model HP</label>
-        <input id="diagModel" placeholder="Contoh: Redmi Note 10">
-      </div>
-      <div>
-        <label class="label">Keluhan</label>
-        <select id="diagComplaint">
-          <option value="">Pilih keluhan</option>
-          <option>Mati total</option>
-          <option>Bootloop</option>
-          <option>Tidak charging</option>
-          <option>Tidak tampil</option>
-          <option>Tidak ada sinyal</option>
-          <option>Restart</option>
-          <option>Panas</option>
-          <option>Boros baterai</option>
-        </select>
-      </div>
-      <div>
-        <label class="label">Tegangan VBAT (V)</label>
-        <input id="vbat" type="number" step="0.01" placeholder="3.82">
-      </div>
-      <div>
-        <label class="label">Arus konsumsi (A)</label>
-        <input id="current" type="number" step="0.01" placeholder="0.08">
-      </div>
-      <div>
-        <label class="label">USB terdeteksi?</label>
-        <select id="usb">
-          <option value="">Pilih</option><option>Ya</option><option>Tidak</option>
-        </select>
-      </div>
-      <div>
-        <label class="label">Mode terdeteksi</label>
-        <select id="mode">
-          <option value="">Pilih</option>
-          <option>ADB</option><option>Fastboot</option><option>Qualcomm</option>
-          <option>MTK</option><option>Preloader</option><option>Tidak diketahui</option>
-        </select>
-      </div>
-    </div>
-    <br>
-    <button onclick="runDiagnosis()">Analisis</button>
-    <div id="diagnosisResult" class="result"></div>
-  </section>
+<section id="diagnosis" class="card hidden">
+<h2>🧪 Diagnosa Kerusakan</h2>
+<div class="grid">
+<input id="diagModel" placeholder="Model HP">
+<select id="diagComplaint"><option value="">Pilih keluhan</option><option>Mati total</option><option>Bootloop</option><option>Tidak charging</option><option>Tidak tampil</option><option>Tidak ada sinyal</option><option>Restart</option><option>Panas</option><option>Boros baterai</option></select>
+<input id="vbat" type="number" step="0.01" placeholder="VBAT (V), contoh 3.82">
+<input id="current" type="number" step="0.01" placeholder="Arus (A), contoh 0.08">
+<select id="usb"><option value="">USB terdeteksi?</option><option>Ya</option><option>Tidak</option></select>
+<select id="mode"><option value="">Mode terdeteksi</option><option>ADB</option><option>Fastboot</option><option>Qualcomm</option><option>MTK</option><option>Preloader</option><option>Tidak diketahui</option></select>
+</div><br><button onclick="runDiagnosis()">Analisis</button><div id="diagnosisResult"></div>
+</section>
 
-  <section id="cases" class="card hidden">
-    <h2>📚 Database Kasus</h2>
-    <input id="caseSearch" placeholder="Cari model atau kerusakan..." oninput="renderCases()">
-    <div id="caseList"></div>
-  </section>
+<section id="cases" class="card hidden">
+<h2>📚 Database Kasus</h2>
+<input id="caseSearch" placeholder="Cari model, keluhan, atau komponen..." oninput="renderCases()">
+<div id="caseList"></div>
+</section>
 
-  <section id="inputCase" class="card hidden">
-    <h2>📝 Catat Kasus</h2>
-    <div class="grid">
-      <input id="caseModel" placeholder="Model HP">
-      <input id="caseComplaint" placeholder="Keluhan">
-      <input id="caseMeasurement" placeholder="Hasil pengukuran">
-      <input id="caseComponent" placeholder="Komponen rusak">
-    </div>
-    <br>
-    <textarea id="caseAction" rows="3" placeholder="Tindakan / perbaikan"></textarea>
-    <br><br>
-    <select id="caseResult">
-      <option>Berhasil</option>
-      <option>Gagal</option>
-      <option>Belum selesai</option>
-    </select>
-    <br><br>
-    <textarea id="caseNotes" rows="3" placeholder="Catatan teknisi"></textarea>
-    <br><br>
-    <button onclick="saveCase()">Simpan Kasus</button>
-  </section>
+<section id="inputCase" class="card hidden">
+<h2>📝 Catat Kasus</h2>
+<div class="grid">
+<input id="caseModel" placeholder="Model HP *"><input id="caseComplaint" placeholder="Keluhan *">
+<input id="caseMeasurement" placeholder="Hasil pengukuran"><input id="caseComponent" placeholder="Komponen rusak">
+</div><br>
+<textarea id="caseAction" rows="3" placeholder="Tindakan / perbaikan"></textarea><br><br>
+<select id="caseResult"><option>Berhasil</option><option>Gagal</option><option>Belum selesai</option></select><br><br>
+<textarea id="caseNotes" rows="3" placeholder="Catatan teknisi"></textarea><br><br>
+<button onclick="saveCase()">Simpan Kasus</button>
+</section>
 
-  <section id="models" class="card hidden">
-    <h2>📱 Database Model</h2>
-    <div id="modelList"></div>
-    <p class="small">V1 menggunakan data contoh untuk memastikan alur aplikasi berjalan. Database Firebase dapat diaktifkan setelah konfigurasi project dimasukkan.</p>
-  </section>
+<section id="models" class="card hidden">
+<h2>📱 Database Model</h2>
+<div class="search"><input id="modelSearch" placeholder="Cari model..." oninput="renderModels()"></div>
+<div id="modelList"></div>
+<p class="small">Model contoh dipakai sebagai data awal. Setelah Firebase terhubung, koleksi <b>phone_models</b> menjadi sumber utama.</p>
+</section>
 </main>
+<div id="toast"></div>
 
 <script type="module">
-/*
-  FIREBASE V1
-  -----------------------------------------
-  Saat project Firebase sudah siap, isi konfigurasi
-  di bawah lalu aktifkan import Firebase dan fungsi
-  Firestore sesuai struktur:
-    phone_models
-    diagnosis
-    repair_cases
-    users
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+import { getFirestore, collection, getDocs, addDoc, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
-  Untuk sekarang aplikasi berjalan dalam mode demo
-  menggunakan data browser agar UI dan alur dapat diuji
-  tanpa mengubah data Firebase.
-*/
+const firebaseConfig = {
+  apiKey: "ISI_API_KEY",
+  authDomain: "ISI_PROJECT_ID.firebaseapp.com",
+  projectId: "ISI_PROJECT_ID",
+  storageBucket: "ISI_PROJECT_ID.firebasestorage.app",
+  messagingSenderId: "ISI_SENDER_ID",
+  appId: "ISI_APP_ID"
+};
 
-const demoModels = [
-  {brand:"Xiaomi", model:"Redmi Note 10", code:"M2101K7AG", chipset:"Snapdragon 678", storage:"UFS"},
-  {brand:"Vivo", model:"Y21", code:"V2111", chipset:"MediaTek Helio P35", storage:"eMMC"},
-  {brand:"OPPO", model:"A5 2020", code:"CPH1931", chipset:"Snapdragon 665", storage:"eMMC"},
-  {brand:"Samsung", model:"Galaxy A05s", code:"SM-A057F", chipset:"Snapdragon 680", storage:"eMMC"},
-  {brand:"Realme", model:"C30", code:"RMX3581", chipset:"Unisoc", storage:"eMMC"}
+const demoModels=[
+{brand:"Xiaomi",model:"Redmi Note 10",code:"M2101K7AG",chipset:"Snapdragon 678",storage:"UFS"},
+{brand:"Vivo",model:"Y21",code:"V2111",chipset:"MediaTek Helio P35",storage:"eMMC"},
+{brand:"OPPO",model:"A5 2020",code:"CPH1931",chipset:"Snapdragon 665",storage:"eMMC"},
+{brand:"Samsung",model:"Galaxy A05s",code:"SM-A057F",chipset:"Snapdragon 680",storage:"eMMC"},
+{brand:"Realme",model:"C30",code:"RMX3581",chipset:"Unisoc",storage:"eMMC"}
 ];
 
-let cases = JSON.parse(localStorage.getItem("tra_demo_cases") || "[]");
+let db=null, firebaseReady=false, models=[...demoModels], cases=[];
 
-window.showSection = function(id){
-  ["diagnosis","cases","inputCase","models"].forEach(x=>{
-    document.getElementById(x).classList.toggle("hidden",x!==id);
-  });
-  if(id==="cases") renderCases();
-  if(id==="models") renderModels();
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.style.display="block";clearTimeout(window._toast);window._toast=setTimeout(()=>t.style.display="none",2500)}
+function setStatus(text,ok=false){const e=document.getElementById("connectionStatus");e.textContent=text;e.className="status"+(ok?" ok":"")}
+
+try{
+ const configured=!firebaseConfig.apiKey.startsWith("ISI_") && !firebaseConfig.projectId.startsWith("ISI_");
+ if(configured){
+   const app=initializeApp(firebaseConfig); db=getFirestore(app); firebaseReady=true; setStatus("Firebase aktif",true);
+   await loadFirebase();
+ }else setStatus("Mode demo — Firebase belum diisi");
+}catch(e){console.error(e);setStatus("Firebase gagal — mode demo");}
+
+async function loadFirebase(){
+ try{
+   const ms=await getDocs(query(collection(db,"phone_models"),limit(500)));
+   if(ms.size) models=ms.docs.map(d=>({id:d.id,...d.data()}));
+   const cs=await getDocs(query(collection(db,"repair_cases"),orderBy("createdAt","desc"),limit(200)));
+   cases=cs.docs.map(d=>({id:d.id,...d.data()}));
+   renderModels();renderCases();
+ }catch(e){console.error(e);setStatus("Firebase aktif, tetapi database belum siap");toast("Firebase tersambung. Cek rules/struktur koleksi.");}
+}
+
+window.showSection=id=>{["diagnosis","cases","inputCase","models"].forEach(x=>document.getElementById(x).classList.toggle("hidden",x!==id));if(id==="cases")renderCases();if(id==="models")renderModels()};
+
+window.searchModel=()=>{
+ const q=document.getElementById("searchInput").value.trim().toLowerCase(),box=document.getElementById("searchResult");
+ if(!q){box.innerHTML='<div class="empty">Masukkan model atau kode model.</div>';return}
+ const m=models.filter(x=>`${x.brand||""} ${x.model||""} ${x.code||""}`.toLowerCase().includes(q));
+ box.innerHTML=m.length?m.map(x=>modelCard(x)).join(""):'<div class="empty">Model belum ditemukan.</div>';
 };
 
-window.searchModel = function(){
-  const q=document.getElementById("searchInput").value.trim().toLowerCase();
-  const matches=demoModels.filter(m =>
-    `${m.brand} ${m.model} ${m.code}`.toLowerCase().includes(q)
-  );
-  const box=document.getElementById("searchResult");
-  if(!q){box.innerHTML='<div class="empty">Masukkan model atau kode model.</div>';return;}
-  if(!matches.length){box.innerHTML='<div class="empty">Model belum ditemukan di database V1.</div>';return;}
-  box.innerHTML=matches.map(m=>`
-    <div class="card" style="margin:10px 0 0">
-      <h3>${m.brand} ${m.model}</h3>
-      <div class="row"><span class="label">Kode model</span><span class="value">${m.code}</span></div>
-      <div class="row"><span class="label">Chipset</span><span class="value">${m.chipset}</span></div>
-      <div class="row"><span class="label">Storage</span><span class="value">${m.storage}</span></div>
-    </div>`).join("");
+function modelCard(m){return `<div class="case"><h3>${m.brand||""} ${m.model||""}</h3><div class="row"><span class="label">Kode</span><span class="value">${m.code||"-"}</span></div><div class="row"><span class="label">Chipset</span><span class="value">${m.chipset||"-"}</span></div><div class="row"><span class="label">Storage</span><span class="value">${m.storage||"-"}</span></div></div>`}
+
+window.runDiagnosis=()=>{
+ const model=document.getElementById("diagModel").value.trim()||"Model belum diisi", complaint=document.getElementById("diagComplaint").value;
+ const v=parseFloat(document.getElementById("vbat").value),a=parseFloat(document.getElementById("current").value),usb=document.getElementById("usb").value,mode=document.getElementById("mode").value;
+ let p=[];
+ if(complaint==="Mati total"){
+   if(!isNaN(v)&&v<3.3)p.push("Periksa baterai dan jalur VBAT.");
+   if(!isNaN(a)&&a===0)p.push("Periksa jalur power utama, konektor baterai, PMIC, dan kemungkinan open circuit.");
+   if(!isNaN(a)&&a>0&&a<0.15)p.push("Arus rendah: periksa proses boot, power rail sekunder, storage, dan reset.");
+   if(usb==="Ya")p.push("USB terdeteksi. Identifikasi mode boot dan komunikasi dengan PC.");
+   if(mode)p.push(`Mode terdeteksi: ${mode}. Cocokkan prosedur dengan ${model}.`);
+ }else if(complaint==="Tidak charging")p.push("Periksa adaptor/kabel, konektor USB, VBUS, ESD, IC charging, dan konektor baterai.");
+ else if(complaint==="Tidak tampil")p.push("Bedakan LCD/backlight dengan masalah boot. Cek konsumsi arus dan respons USB/ADB.");
+ else if(complaint==="Bootloop")p.push("Periksa firmware/software, kemudian storage dan jalur power bila flashing tidak menyelesaikan masalah.");
+ else p.push("Kumpulkan gejala dan hasil pengukuran sebelum menentukan komponen.");
+ document.getElementById("diagnosisResult").innerHTML=`<div class="case"><span class="badge">HASIL ANALISIS V1.1</span><h3>${model}</h3><p><b>Keluhan:</b> ${complaint||"-"}</p>${p.map(x=>`<div class="row"><span>•</span><span style="flex:1">${x}</span></div>`).join("")}<p class="small">Panduan pemeriksaan, bukan kepastian kerusakan.</p></div>`;
 };
 
-window.runDiagnosis = function(){
-  const model=document.getElementById("diagModel").value.trim() || "Model belum diisi";
-  const complaint=document.getElementById("diagComplaint").value;
-  const vbat=parseFloat(document.getElementById("vbat").value);
-  const current=parseFloat(document.getElementById("current").value);
-  const usb=document.getElementById("usb").value;
-  const mode=document.getElementById("mode").value;
-
-  let points=[];
-  if(complaint==="Mati total"){
-    if(!isNaN(vbat) && vbat<3.3) points.push("Periksa baterai dan jalur VBAT terlebih dahulu.");
-    if(!isNaN(current) && current===0) points.push("Periksa jalur power utama, konektor baterai, PMIC, dan kemungkinan open circuit.");
-    if(!isNaN(current) && current>0 && current<0.15) points.push("Konsumsi arus rendah: periksa proses boot, power rail sekunder, storage, dan jalur reset.");
-    if(usb==="Ya") points.push("USB terdeteksi: lanjutkan identifikasi mode boot dan cek apakah perangkat dapat berkomunikasi dengan PC.");
-    if(mode) points.push(`Mode terdeteksi: ${mode}. Cocokkan dengan prosedur servis model ${model}.`);
-  } else if(complaint==="Tidak charging"){
-    points.push("Periksa kabel, adaptor, konektor USB, jalur VBUS, proteksi ESD, IC charging, dan battery connector.");
-  } else if(complaint==="Tidak tampil"){
-    points.push("Bedakan masalah LCD/backlight dengan masalah boot. Cek konsumsi arus dan respons USB/ADB.");
-  } else if(complaint==="Bootloop"){
-    points.push("Periksa software/firmware terlebih dahulu, lalu storage dan jalur power bila flashing tidak menyelesaikan masalah.");
-  } else {
-    points.push("Kumpulkan gejala, hasil pengukuran, dan kondisi USB/boot sebelum menentukan komponen.");
-  }
-
-  document.getElementById("diagnosisResult").innerHTML=`
-    <div class="card" style="margin-top:12px">
-      <span class="badge">HASIL ANALISIS V1</span>
-      <h3>${model}</h3>
-      <p><b>Keluhan:</b> ${complaint || "-"}</p>
-      ${points.map(p=>`<div class="row"><span>•</span><span style="flex:1">${p}</span></div>`).join("")}
-      <p class="small">Catatan: hasil V1 adalah panduan pemeriksaan, bukan kepastian kerusakan. Jangan mengganti komponen hanya berdasarkan satu gejala.</p>
-    </div>`;
+window.saveCase=async()=>{
+ const item={model:caseModel.value.trim(),complaint:caseComplaint.value.trim(),measurement:caseMeasurement.value.trim(),component:caseComponent.value.trim(),action:caseAction.value.trim(),result:caseResult.value,notes:caseNotes.value.trim(),createdAt:Date.now()};
+ if(!item.model||!item.complaint){toast("Model HP dan keluhan wajib diisi.");return}
+ try{
+   if(firebaseReady){const ref=await addDoc(collection(db,"repair_cases"),item);cases.unshift({id:ref.id,...item});toast("Kasus tersimpan ke Firebase.");}
+   else{cases.unshift({id:Date.now(),...item});localStorage.setItem("tra_demo_cases",JSON.stringify(cases));toast("Kasus tersimpan di mode demo.");}
+   ["caseModel","caseComplaint","caseMeasurement","caseComponent","caseAction","caseNotes"].forEach(id=>document.getElementById(id).value="");
+   renderCases();
+ }catch(e){console.error(e);toast("Gagal menyimpan. Periksa Firestore Rules.");}
 };
 
-window.saveCase = function(){
-  const item={
-    id:Date.now(),
-    model:document.getElementById("caseModel").value.trim(),
-    complaint:document.getElementById("caseComplaint").value.trim(),
-    measurement:document.getElementById("caseMeasurement").value.trim(),
-    component:document.getElementById("caseComponent").value.trim(),
-    action:document.getElementById("caseAction").value.trim(),
-    result:document.getElementById("caseResult").value,
-    notes:document.getElementById("caseNotes").value.trim()
-  };
-  if(!item.model || !item.complaint){
-    alert("Model HP dan keluhan wajib diisi.");
-    return;
-  }
-  cases.unshift(item);
-  localStorage.setItem("tra_demo_cases",JSON.stringify(cases));
-  alert("Kasus tersimpan di mode demo.");
-  ["caseModel","caseComplaint","caseMeasurement","caseComponent","caseAction","caseNotes"].forEach(id=>document.getElementById(id).value="");
-  renderCases();
+function loadDemoCases(){try{return JSON.parse(localStorage.getItem("tra_demo_cases")||"[]")}catch{return[]}}
+if(!firebaseReady)cases=loadDemoCases();
+
+window.renderCases=()=>{
+ const q=document.getElementById("caseSearch").value.trim().toLowerCase();
+ const arr=cases.filter(c=>`${c.model||""} ${c.complaint||""} ${c.component||""}`.toLowerCase().includes(q));
+ document.getElementById("caseList").innerHTML=arr.length?arr.map(c=>`<div class="case"><h3>${c.model}</h3><div class="row"><span class="label">Keluhan</span><span class="value">${c.complaint}</span></div><div class="row"><span class="label">Pengukuran</span><span class="value">${c.measurement||"-"}</span></div><div class="row"><span class="label">Komponen</span><span class="value">${c.component||"-"}</span></div><div class="row"><span class="label">Hasil</span><span class="value">${c.result||"-"}</span></div><p>${c.action||"-"}</p><p class="small">${c.notes||""}</p></div>`).join(""):'<div class="empty">Belum ada kasus tersimpan.</div>';
 };
 
-window.renderCases = function(){
-  const q=document.getElementById("caseSearch").value.trim().toLowerCase();
-  const filtered=cases.filter(c=>`${c.model} ${c.complaint} ${c.component}`.toLowerCase().includes(q));
-  const box=document.getElementById("caseList");
-  if(!filtered.length){box.innerHTML='<div class="empty">Belum ada kasus tersimpan.</div>';return;}
-  box.innerHTML=filtered.map(c=>`
-    <div class="card" style="margin:10px 0 0">
-      <h3>${c.model}</h3>
-      <div class="row"><span class="label">Keluhan</span><span class="value">${c.complaint}</span></div>
-      <div class="row"><span class="label">Pengukuran</span><span class="value">${c.measurement||"-"}</span></div>
-      <div class="row"><span class="label">Komponen</span><span class="value">${c.component||"-"}</span></div>
-      <div class="row"><span class="label">Hasil</span><span class="value">${c.result}</span></div>
-      <p>${c.action||"-"}</p>
-      <p class="small">${c.notes||""}</p>
-    </div>`).join("");
+window.renderModels=()=>{
+ const q=(document.getElementById("modelSearch")?.value||"").trim().toLowerCase();
+ const arr=models.filter(m=>`${m.brand||""} ${m.model||""} ${m.code||""}`.toLowerCase().includes(q));
+ document.getElementById("modelList").innerHTML=arr.map(m=>`<div class="row"><span><b>${m.brand||""} ${m.model||""}</b><br><span class="label">${m.code||"-"}</span></span><span class="value">${m.chipset||"-"}</span></div>`).join("")||'<div class="empty">Model tidak ditemukan.</div>';
 };
 
-window.renderModels = function(){
-  document.getElementById("modelList").innerHTML=demoModels.map(m=>`
-    <div class="row">
-      <span><b>${m.brand} ${m.model}</b><br><span class="label">${m.code}</span></span>
-      <span class="value">${m.chipset}</span>
-    </div>`).join("");
-};
-
-renderModels();
+renderModels();renderCases();
 </script>
 </body>
 </html>
