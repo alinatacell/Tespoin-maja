@@ -1,64 +1,165 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Reseller A Yudi</title>
 <style>
-body{margin:0;font-family:Arial;background:#f5f5f5;color:#222}header{background:#111;color:white;padding:18px;text-align:center}
-main{max-width:850px;margin:auto;padding:15px}.card{background:white;padding:16px;margin:12px 0;border-radius:12px;box-shadow:0 2px 8px #0001}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}.item{border:1px solid #ddd;border-radius:10px;padding:14px}
-button{background:#111;color:#fff;border:0;border-radius:8px;padding:11px 14px;font-weight:bold}
-input{width:100%;padding:11px;margin:6px 0 12px;border:1px solid #ccc;border-radius:8px;box-sizing:border-box}
-.price{font-size:20px;font-weight:bold;margin:8px 0}.muted{color:#777;font-size:13px}.row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f6f7f9;color:#1d1d1f}
+header{background:#111;color:#fff;position:sticky;top:0;z-index:5}
+.nav{max-width:1000px;margin:auto;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-weight:800;font-size:20px}.nav button{background:#ff7a00;color:#fff}
+.container{max-width:1000px;margin:auto;padding:18px}
+.hero{background:#fff;border-radius:16px;padding:24px;margin-bottom:18px}
+.hero h1{margin:0 0 8px;font-size:28px}.hero p{margin:0;color:#666}
+.tabs{display:flex;gap:8px;overflow:auto;margin:15px 0}.tabs button{white-space:nowrap;background:#fff;color:#333;border:1px solid #ddd}
+.tabs button.active{background:#ff7a00;color:#fff;border-color:#ff7a00}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.card{background:#fff;border-radius:14px;padding:16px;box-shadow:0 3px 12px #0000000d;border:1px solid #eee}
+.product h3{margin:0 0 6px}.muted{color:#777;font-size:13px}.price{font-size:21px;font-weight:800;margin:12px 0}
+button{border:0;border-radius:9px;padding:11px 14px;font-weight:700;cursor:pointer;background:#111;color:#fff}
+.buy{width:100%;background:#ff7a00}.qty{display:flex;align-items:center;gap:10px}.qty button{padding:7px 11px}
+input,select{width:100%;padding:12px;border:1px solid #d5d5d5;border-radius:9px;margin:6px 0 13px;background:#fff}
+.hidden{display:none}.summary{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #eee;padding:10px 0}
+.total{font-size:21px;font-weight:800;text-align:right;margin-top:14px}
+.notice{background:#fff8ed;border:1px solid #ffd9aa;padding:12px;border-radius:10px;font-size:13px}
+.status{padding:12px;border-radius:10px;background:#f1f1f1;margin-top:10px}
+.qris{min-height:220px;border:2px dashed #ddd;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#888;text-align:center;padding:20px}
+.success{background:#eefaf0;border:1px solid #b9e6bf;padding:14px;border-radius:10px}
+footer{text-align:center;color:#777;padding:30px 15px;font-size:12px}
+@media(max-width:600px){.hero h1{font-size:23px}.container{padding:10px}}
 </style>
 </head>
 <body>
-<header><h2>RESELLER A YUDI</h2><div>Produk Digital • Order Mudah</div></header>
-<main>
-<section class="card"><h3>Produk</h3><div id="products" class="grid"></div></section>
-<section class="card"><h3>Keranjang</h3><div id="cart">Belum ada produk.</div><h3 id="total">Rp0</h3></section>
-<section class="card">
-<h3>Data Pembeli</h3>
-<input id="nama" placeholder="Nama pembeli">
-<input id="wa" placeholder="Nomor WhatsApp">
-<input id="catatan" placeholder="Catatan (opsional)">
-<button onclick="buatOrder()">Buat Order</button>
-<div id="hasil"></div>
+<header>
+<div class="nav"><div class="logo">A YUDI STORE</div><button onclick="show('tracking')">Cek Order</button></div>
+</header>
+
+<main class="container">
+<section class="hero">
+<h1>Produk Digital</h1>
+<p>Pilih produk dan durasi. Pesanan diproses langsung melalui sistem reseller.</p>
+</section>
+
+<section id="catalog">
+<div class="tabs">
+<button class="active">Semua</button>
+<button>Unlock Tool</button><button>Tool HP</button><button>Akun Digital</button>
+</div>
+<div id="products" class="grid"></div>
+</section>
+
+<section id="checkout" class="card hidden">
+<h2>Checkout</h2>
+<div id="cartSummary"></div>
+<div class="total" id="checkoutTotal">Rp0</div>
+<hr>
+<label>Nama Pembeli</label>
+<input id="buyerName" placeholder="Nama">
+<label>WhatsApp</label>
+<input id="buyerWa" inputmode="numeric" placeholder="628xxxxxxxxxx">
+<div class="notice">Nomor WhatsApp digunakan untuk pengiriman hasil order.</div>
+<br>
+<button class="buy" onclick="createOrder()">Buat Pesanan & Pembayaran</button>
+<br><br><button onclick="backCatalog()">← Kembali</button>
+</section>
+
+<section id="payment" class="card hidden">
+<h2>Pembayaran</h2>
+<div id="orderInfo"></div>
+<div class="qris" id="qrisBox">QRIS dari sistem Handayani akan tampil di sini setelah integrasi aktif.</div>
+<div class="status" id="paymentStatus">Menunggu pembayaran</div>
+<br><button onclick="show('tracking')">Cek Status Order</button>
+</section>
+
+<section id="tracking" class="card hidden">
+<h2>Cek Order</h2>
+<input id="trackId" placeholder="Masukkan Order ID">
+<button onclick="trackOrder()">Cek Pesanan</button>
+<div id="trackResult"></div>
+<br><button onclick="backCatalog()">← Kembali ke Produk</button>
 </section>
 </main>
+
+<footer>Reseller A Yudi • Sistem order mandiri</footer>
+
 <script>
-const produk=[
-{id:"p1",nama:"Paket 1 Bulan",durasi:"1 Bulan",harga:25000},
-{id:"p2",nama:"Paket 3 Bulan",durasi:"3 Bulan",harga:60000},
-{id:"p3",nama:"Paket 6 Bulan",durasi:"6 Bulan",harga:110000},
-{id:"p4",nama:"Paket 12 Bulan",durasi:"12 Bulan",harga:200000}
+const products=[
+ {id:"unlock-12",name:"UnlockTool",variant:"12 Jam",price:10000,category:"Unlock Tool"},
+ {id:"unlock-24",name:"UnlockTool",variant:"24 Jam",price:18000,category:"Unlock Tool"},
+ {id:"unlock-72",name:"UnlockTool",variant:"72 Jam",price:45000,category:"Unlock Tool"}
 ];
-let cart=[];
+
+let selected=null;
+
 const rp=n=>new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(n);
-function render(){
- document.getElementById("products").innerHTML=produk.map(p=>`<div class="item"><b>${p.nama}</b><div class="muted">${p.durasi}</div><div class="price">${rp(p.harga)}</div><button onclick="add('${p.id}')">Tambah</button></div>`).join("");
- document.getElementById("cart").innerHTML=cart.length?cart.map(x=>`<div class="row"><span>${x.nama} × ${x.qty}</span><button onclick="removeItem('${x.id}')">−</button></div>`).join(""):"Belum ada produk.";
- document.getElementById("total").textContent=rp(cart.reduce((s,x)=>s+x.harga*x.qty,0));
+
+function renderProducts(){
+ document.getElementById("products").innerHTML=products.map(p=>`
+ <article class="card product">
+  <div class="muted">${p.category}</div>
+  <h3>${p.name}</h3>
+  <div>${p.variant}</div>
+  <div class="price">${rp(p.price)}</div>
+  <button class="buy" onclick="selectProduct('${p.id}')">Beli Sekarang</button>
+ </article>`).join("");
 }
-function add(id){let p=produk.find(x=>x.id===id),x=cart.find(x=>x.id===id);x?x.qty++:cart.push({...p,qty:1});render()}
-function removeItem(id){let x=cart.find(x=>x.id===id);if(x.qty>1)x.qty--;else cart=cart.filter(y=>y.id!==id);render()}
-function buatOrder(){
- if(!cart.length)return alert("Pilih produk terlebih dahulu.");
- let nama=document.getElementById("nama").value.trim(),wa=document.getElementById("wa").value.trim();
- if(!nama||!wa)return alert("Nama dan WhatsApp wajib diisi.");
- let total=cart.reduce((s,x)=>s+x.harga*x.qty,0);
- let no="RY-"+Date.now();
- let order={no,nama,wa,catatan:document.getElementById("catatan").value.trim(),items:cart,total,status:"MENUNGGU PEMBAYARAN",createdAt:new Date().toISOString()};
- localStorage.setItem("reseller_order_"+no,JSON.stringify(order));
- document.getElementById("hasil").innerHTML=`<p><b>Order ${no} berhasil dibuat.</b></p><p>Total: <b>${rp(total)}</b></p><p>Status: MENUNGGU PEMBAYARAN</p><button onclick="kirim('${no}')">Kirim Order WhatsApp</button>`;
+
+function selectProduct(id){
+ selected=products.find(p=>p.id===id);
+ document.getElementById("cartSummary").innerHTML=`
+ <div class="summary"><span>Produk</span><b>${selected.name}</b></div>
+ <div class="summary"><span>Varian</span><b>${selected.variant}</b></div>
+ <div class="summary"><span>Jumlah</span><b>1</b></div>`;
+ document.getElementById("checkoutTotal").textContent=rp(selected.price);
+ show("checkout");
 }
-function kirim(no){
- let o=JSON.parse(localStorage.getItem("reseller_order_"+no));
- let teks=`Order ${o.no}%0ANama: ${o.nama}%0A${o.items.map(x=>x.nama+" x"+x.qty).join("%0A")}%0ATotal: ${rp(o.total)}%0AStatus: ${o.status}`;
- let nomor="628XXXXXXXXXX";
- window.open("https://wa.me/"+nomor+"?text="+teks,"_blank");
+
+function createOrder(){
+ if(!selected)return;
+ const name=document.getElementById("buyerName").value.trim();
+ const wa=document.getElementById("buyerWa").value.trim();
+ if(!name||!wa){alert("Nama dan WhatsApp wajib diisi.");return;}
+
+ const orderId="AY-"+Math.random().toString(36).substring(2,8).toUpperCase();
+ const order={
+  orderId,name,wa,product:selected.name,variant:selected.variant,
+  qty:1,total:selected.price,status:"MENUNGGU PEMBAYARAN",
+  createdAt:new Date().toISOString()
+ };
+ localStorage.setItem("reseller_"+orderId,JSON.stringify(order));
+
+ document.getElementById("orderInfo").innerHTML=`
+ <div class="success">
+ <b>Order berhasil dibuat</b><br>
+ Order ID: <b>${orderId}</b><br>
+ Produk: ${selected.name}<br>
+ Varian: ${selected.variant}<br>
+ Total: <b>${rp(selected.price)}</b>
+ </div><br>`;
+
+ show("payment");
 }
-render();
+
+function trackOrder(){
+ const id=document.getElementById("trackId").value.trim().toUpperCase();
+ const raw=localStorage.getItem("reseller_"+id);
+ const box=document.getElementById("trackResult");
+ if(!raw){box.innerHTML='<div class="status">Order tidak ditemukan.</div>';return;}
+ const o=JSON.parse(raw);
+ box.innerHTML=`<div class="status">
+ <b>${o.orderId}</b><br>${o.product} — ${o.variant}<br>
+ Total: ${rp(o.total)}<br>Status: <b>${o.status}</b>
+ </div>`;
+}
+
+function show(id){
+ ["catalog","checkout","payment","tracking"].forEach(x=>document.getElementById(x).classList.add("hidden"));
+ document.getElementById(id).classList.remove("hidden");
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+function backCatalog(){show("catalog")}
+renderProducts();
 </script>
-</body></html>
+</body>
+</html>
